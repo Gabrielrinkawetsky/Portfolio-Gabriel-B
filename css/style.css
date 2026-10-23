@@ -283,9 +283,20 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-bg::after { animation: hero-glow-float 13s ease-in-out infinite alternate; }
 .person { will-change: transform; }
-/* enquanto o GSAP não prepara a entrada, a foto fica escondida (sem piscar no lugar final).
-   A classe é posta no <head> e tirada pelo js/main.js, inclusive se o GSAP não carregar. */
-.gsap-loading .person { opacity: 0; }
+/* enquanto o GSAP não prepara a entrada, o conteúdo da hero fica escondido (sem piscar no
+   lugar final). A classe é posta no <head> e tirada pelo js/main.js, inclusive se o GSAP não
+   carregar. */
+.gsap-loading :is(.logo, .intro, .panel, .socials, .person, .snakes) { opacity: 0; }
+
+/* máscaras da entrada do texto (js/main.js quebra o texto em letras/palavras): o texto sobe
+   de baixo da máscara. O padding com margem negativa dá espaço às letras que descem (g, p, ç)
+   sem mudar o espaçamento das linhas. */
+.line-mask { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+.intro h1 { display: flow-root; }   /* segura a margem negativa da última linha dentro do título (no PC ela vazava e o título crescia ~11px) */
+.char { display: inline-block; }
+.word-mask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .16em; margin-bottom: -.16em; }
+.word { display: inline-block; }
+.nowrap { white-space: nowrap; }
 
 /* cobras: faixas de sombra em forma de S, cada uma com um brilho claro ao lado (como o arco
    do fundo da referência). A camada inteira é desfocada junto (um único blur), o que deixa as
