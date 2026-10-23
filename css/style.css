@@ -1,0 +1,205 @@
+/* Hero B do portfólio do Gabriel: cópia do layout da referência
+   (Downloads/02dc17bfa7e203ea4202aab6907b6a12.jpg). Medidas tiradas da referência
+   como fração da largura/altura do hero, para o desenho se manter em qualquer tela. */
+:root {
+  --orange: #f26b1d;
+  --orange-2: #ff9536;
+  --ink: #111111;
+  --muted: #3b3b3b;
+  --panel: #f7f6f4;
+  --card: #f1efec;
+  --font: "Inter Tight", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: #e9e5e0; font-family: var(--font); color: var(--ink); -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+
+/* ---------- Moldura ---------- */
+/* mesma proporção da referência (735×525): o maior quadro que cabe na tela, centralizado */
+body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; }
+.hero {
+  position: relative; overflow: hidden; isolation: isolate;
+  width: min(calc(100vw - 24px), calc((100svh - 24px) * 1.4), 1700px); aspect-ratio: 735 / 525;
+  margin: 12px auto; min-width: 860px;
+  border-radius: 22px;
+  container-type: size;   /* cqw/cqh = % da largura/altura do hero */
+}
+
+/* ---------- Fundo laranja com os arcos ---------- */
+.hero-bg {
+  position: absolute; inset: 0; z-index: -2;
+  background:
+    radial-gradient(42cqw 62cqh at 50% 50%, rgba(255, 160, 70, .95) 0%, rgba(246, 122, 36, .75) 38%, rgba(240, 110, 30, 0) 72%),
+    radial-gradient(58cqw 70cqh at 0% 0%, #240a03 0%, rgba(60, 18, 5, .85) 30%, rgba(60, 18, 5, 0) 68%),
+    radial-gradient(50cqw 50cqh at 0% 100%, rgba(90, 28, 6, .55) 0%, rgba(90, 28, 6, 0) 70%),
+    linear-gradient(160deg, #7a2a0a 0%, #d8611a 42%, #e9721f 62%, #b9480f 100%);
+}
+/* arcos grandes por trás da cabeça, como na referência */
+.hero-bg::before, .hero-bg::after {
+  content: ""; position: absolute; border-radius: 50%;
+}
+.hero-bg::before {
+  width: 62cqw; height: 62cqw; left: 16cqw; top: -46cqw;
+  background: radial-gradient(circle, rgba(150, 50, 10, 0) 58%, rgba(150, 50, 10, .32) 59%, rgba(150, 50, 10, .32) 70%, rgba(150, 50, 10, 0) 71%);
+}
+.hero-bg::after {
+  width: 40cqw; height: 40cqw; left: 2cqw; top: 38cqh;
+  background: radial-gradient(circle, rgba(255, 170, 80, .22) 0%, rgba(255, 170, 80, 0) 62%);
+}
+
+/* ---------- Logo ---------- */
+.logo { position: absolute; left: 2.9cqw; top: 3.4cqh; width: 4.3cqh; height: 4.3cqh; z-index: 5; }
+.logo svg { width: 100%; height: 100%; fill: #fff; fill-rule: evenodd; }
+
+/* ---------- Textos da esquerda ---------- */
+.intro { position: absolute; left: 5.2cqw; top: 18cqh; z-index: 4; color: #fff; }
+.tag {
+  display: inline-flex; align-items: center; gap: .45em; margin: 0;
+  padding: .55em 1.1em; border: 1px solid rgba(255, 255, 255, .75); border-radius: 999px;
+  font-size: clamp(11px, 1.05cqw, 15px); font-weight: 500; letter-spacing: .01em;
+  background: rgba(255, 255, 255, .06);
+}
+.tag span { opacity: .9; }
+.intro h1 {
+  margin: 2.6cqh 0 0; font-weight: 400; color: #fff;
+  font-size: clamp(44px, 9.6cqh, 112px); line-height: .95; letter-spacing: -.035em;
+}
+.btn-work {
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 5.2cqh; width: 17.3cqw; height: 8cqh; min-width: 170px; min-height: 48px;
+  border-radius: 999px; background: #fff; color: var(--ink);
+  font-size: clamp(14px, 1.35cqw, 19px); font-weight: 500;
+  box-shadow: 0 12px 30px -14px rgba(60, 18, 5, .7);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.btn-work:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -14px rgba(60, 18, 5, .8); }
+
+.stats { position: absolute; left: -.3cqw; top: calc(75.6cqh - 18cqh); display: flex; gap: 1.2cqw; }
+.stat {
+  position: relative; width: 10cqw; height: 15.3cqh; min-width: 104px; min-height: 104px;
+  padding: 1.3cqh 1.1cqw; border-radius: 8px; background: #fff; color: var(--ink);
+  display: flex; flex-direction: column; justify-content: space-between;
+  box-shadow: 0 14px 30px -18px rgba(50, 14, 3, .65);
+}
+.stat p { margin: 0; font-size: clamp(10px, .9cqw, 13px); font-weight: 500; }
+.stat strong { font-size: clamp(26px, 3.6cqw, 50px); font-weight: 400; letter-spacing: -.02em; line-height: 1; }
+.stat-ico {
+  position: absolute; top: 1.2cqh; right: .9cqw; width: 1.9cqh; height: 1.9cqh; min-width: 15px; min-height: 15px;
+  border-radius: 50%; background: var(--orange); display: grid; place-items: center;
+}
+.stat-ico svg { width: 70%; height: 70%; fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- Painel claro da direita ---------- */
+/* sem z-index próprio: assim o card da citação (z-index 3) fica na frente da foto (2),
+   como na referência, e o resto do painel fica atrás dela */
+.panel {
+  position: absolute;
+  left: 50.4cqw; top: 2.2cqh; right: 1.6cqw; bottom: 3.6cqh;
+  border-radius: 16px; background: var(--panel);
+}
+.nav { position: absolute; top: 3.2cqh; right: 3.4cqw; display: flex; gap: 4.4cqw; z-index: 6; }
+.nav a { font-size: clamp(12px, 1.2cqw, 17px); font-weight: 500; color: var(--ink); transition: color .2s; }
+.nav a:hover { color: var(--orange); }
+
+.pitch { position: absolute; left: 23.7cqw; top: 20cqh; width: 21cqw; }
+.badge {
+  display: inline-block; padding: .35em .9em; border: 1px solid #1b1b1b; border-radius: 999px;
+  font-size: clamp(9px, .75cqw, 12px); font-weight: 500;
+}
+.pitch-text {
+  margin: 2.4cqh 0 0; font-size: clamp(18px, 2.25cqw, 32px); font-weight: 500; line-height: 1.24;
+  letter-spacing: -.012em; color: var(--ink);
+}
+.pitch-text em { font-style: normal; color: var(--orange); }
+.pitch-small { margin: 3cqh 0 0; font-size: clamp(11px, .95cqw, 14px); line-height: 1.45; color: var(--muted); }
+
+.quote-card {
+  position: absolute; z-index: 3; margin: 0; left: 23cqw; top: 60.8cqh; width: 21.2cqw; min-height: 27cqh;
+  padding: 2.6cqh 1.7cqw; border-radius: 12px; background: var(--card);
+  box-shadow: 0 18px 36px -24px rgba(30, 20, 10, .45);
+}
+.quote-head { display: flex; align-items: center; gap: .9cqw; }
+.quote-head img { width: 6.6cqh; height: 6.6cqh; min-width: 40px; min-height: 40px; border-radius: 6px; object-fit: cover; }
+.quote-head strong { display: block; font-size: clamp(11px, .95cqw, 14px); font-weight: 600; }
+.quote-head span { display: block; margin-top: .15em; font-size: clamp(10px, .85cqw, 13px); color: #6b6b6b; }
+.quote-card blockquote {
+  margin: 2.8cqh 0 0; font-size: clamp(16px, 1.95cqw, 28px); font-weight: 500; line-height: 1.2; letter-spacing: -.012em;
+}
+
+/* ---------- Foto recortada (na frente do painel) ---------- */
+/* cabeça e ombros com o mesmo tamanho e lugar da referência: cabelo a ~6,7% do topo,
+   rosto (cabelo ao queixo) em ~47% da altura, centro do cabelo a ~53% da largura */
+.person {
+  position: absolute; z-index: 2; left: 20cqw; bottom: -10cqh; height: 117.5cqh; aspect-ratio: 1024 / 1536;
+  pointer-events: none;
+  /* os ombros encostam nas laterais da foto original (corte reto): da metade para baixo o
+     corpo ganha um contorno arredondado e nítido, como o ombro do moletom da referência
+     por cima do painel. A cabeça (metade de cima) fica inteira. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 52.5%), radial-gradient(ellipse 44% 52% at 54% 84%, #000 98.5%, transparent 100%);
+          mask-image: linear-gradient(to bottom, #000 52%, transparent 52.5%), radial-gradient(ellipse 44% 52% at 54% 84%, #000 98.5%, transparent 100%);
+}
+.person img { display: block; width: 100%; height: 100%; }
+/* luz laranja na pessoa (a foto original é de estúdio, cinza): só onde há pessoa */
+.person-light {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(105deg, rgba(255, 150, 60, .75) 0%, rgba(255, 130, 45, .45) 38%, rgba(120, 40, 10, .1) 60%, rgba(30, 8, 2, .55) 100%);
+  mix-blend-mode: soft-light;
+  -webkit-mask-image: url("../img/gabriel-recorte.webp"); mask-image: url("../img/gabriel-recorte.webp");
+  -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+}
+
+/* ---------- Redes sociais ---------- */
+.socials { position: absolute; z-index: 6; left: 48.3cqw; top: 82.5cqh; transform: translateX(-50%); display: flex; gap: .9cqw; }
+.socials a {
+  width: 4.5cqh; height: 4.5cqh; min-width: 34px; min-height: 34px; border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .85); display: grid; place-items: center;
+  background: rgba(20, 8, 4, .18); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  transition: background .2s, transform .2s;
+}
+.socials a:hover { background: rgba(255, 255, 255, .18); transform: translateY(-2px); }
+.socials svg { width: 46%; height: 46%; fill: none; stroke: #fff; stroke-width: 1.6; }
+.socials svg .fill { fill: #fff; stroke: none; }
+
+/* ---------- Celular e tablet em pé: empilhado ---------- */
+@media (max-width: 860px) {
+  body { display: block; place-items: normal; }   /* sem centralizar: o hero (container-type) encolhia para 0 */
+  /* container-type normal: cqw/cqh viram medidas da tela (svw/svh), que não mudam quando a
+     barra de rolagem aparece. Com o hero como contêiner, a largura dele mudava com a barra,
+     a altura do texto mudava junto e o navegador entrava num loop de layout (travava). */
+  .hero { width: auto; min-width: 0; aspect-ratio: auto; margin: 12px; height: auto; container-type: normal; padding-bottom: 20px;
+    display: flex; flex-direction: column; }
+  /* ordem no celular: textos, foto (com as redes por cima) e o painel por último */
+  .intro { order: 1; }
+  .person { order: 2; }
+  .socials { order: 3; }
+  .panel { order: 4; }
+  .hero-bg::before { width: 120cqw; height: 120cqw; left: -10cqw; top: -90cqw; }
+  .logo { width: 34px; height: 34px; left: 20px; top: 20px; }
+  .intro { position: relative; left: auto; top: auto; padding: 84px 22px 0; }
+  .intro h1 { font-size: clamp(44px, 14cqw, 72px); margin-top: 18px; }
+  .btn-work { width: auto; height: 50px; padding: 0 34px; margin-top: 26px; }
+  .stats { position: static; margin-top: 26px; gap: 12px; }
+  .stat { width: 120px; height: 112px; padding: 12px; }
+  .stat-ico { top: 12px; right: 10px; width: 16px; height: 16px; }
+  .person { position: relative; left: auto; bottom: auto; transform: none; height: auto; width: min(88%, 460px); margin: 4px auto 0; display: block; }
+  .socials { position: relative; left: auto; top: auto; transform: none; justify-content: center; margin-top: -84px; gap: 12px; }
+  .socials a { width: 40px; height: 40px; }
+  .panel { position: relative; inset: auto; margin: 18px 12px 0; padding: 24px 22px 22px; }
+  .nav { position: static; justify-content: space-between; gap: 10px; }
+  .nav a { font-size: 14px; }
+  .pitch { position: static; width: auto; margin-top: 26px; }
+  .pitch-text { font-size: 24px; margin-top: 14px; }
+  .pitch-small { font-size: 13px; margin-top: 16px; }
+  .badge { font-size: 11px; }
+  .quote-card { position: static; width: auto; min-height: 0; margin-top: 26px; padding: 18px; }
+  .quote-head { gap: 12px; }
+  .quote-head strong { font-size: 14px; }
+  .quote-head span { font-size: 12.5px; }
+  .quote-card blockquote { font-size: 22px; margin-top: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
