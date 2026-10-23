@@ -208,9 +208,15 @@ a { color: inherit; text-decoration: none; }
   .stat strong { font-size: 34px; }
   .stat-ico { top: 11px; right: 10px; width: 16px; height: 16px; }
 
-  /* foto no meio: presa embaixo da primeira tela, cabelo a ~30% e queixo a ~55% da altura */
+  /* foto no meio, presa embaixo da primeira tela, inteira: sem o contorno arredondado do PC e
+     sem passar da largura da tela (a foto tem 2:3, então no máximo 75% da altura da tela).
+     Na foto original os braços encostam nas laterais (corte reto, de ~65% da altura para baixo):
+     ali as laterais só esmaecem um pouco, para o corte reto não aparecer quando sobra espaço. */
   .person { position: relative; z-index: 2; left: 50%; bottom: auto; transform: translateX(-50%);
-    align-self: end; justify-self: start; height: calc(var(--stage) * .75); width: auto; margin: 0; }
+    align-self: end; justify-self: start; width: min(100%, calc(var(--stage) * .5)); height: auto; margin: 0;
+    --fade: 5%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 64%, transparent 66%), linear-gradient(to right, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%);
+            mask-image: linear-gradient(to bottom, #000 64%, transparent 66%), linear-gradient(to right, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%); }
 
   /* redes: em coluna, embaixo à direita */
   .socials { position: relative; left: auto; top: auto; transform: none; z-index: 6;
@@ -238,6 +244,8 @@ a { color: inherit; text-decoration: none; }
   .stat { width: 140px; height: 120px; }
   .stat strong { font-size: 42px; }
   .socials { margin: 0 40px 40px 0; }
+  /* sobra espaço dos lados: o peito esmaece no fundo, em vez de mostrar o corte reto dos braços */
+  .person { -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 96%); mask-image: linear-gradient(to bottom, #000 58%, transparent 96%); }
   .panel { margin: 0 20px; padding: 36px 40px 32px; }
 }
 
@@ -265,7 +273,8 @@ a { color: inherit; text-decoration: none; }
   .stats { margin-top: 10px; }
   .stat { width: 100px; height: 78px; }
   .stat strong { font-size: 28px; }
-  .person { grid-column: 1 / -1; left: 58%; height: calc(var(--stage) * .92); }
+  .person { grid-column: 1 / -1; left: 58%; width: calc(var(--stage) * .92 * 2 / 3);
+    -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 96%); mask-image: linear-gradient(to bottom, #000 58%, transparent 96%); }
   .socials { grid-column: 2; margin: 0 24px 18px 0; }
   .nav { right: 28px; }
   .panel { grid-column: 1 / -1; }
