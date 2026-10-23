@@ -15,7 +15,6 @@ function countUp(el) {
     el.textContent = Math.round(end * eased) + suffix;
     if (p < 1) requestAnimationFrame(frame);
   };
-  el.textContent = '0' + suffix;
   setTimeout(() => requestAnimationFrame(frame), 350);
 }
 
@@ -28,7 +27,10 @@ if (!reduceMotion) {
       countUp(entry.target);
     }
   }, { threshold: 0.6 });
-  document.querySelectorAll('[data-count]').forEach((el) => io.observe(el));
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    el.textContent = '0' + (el.dataset.suffix || '');   // já começa no zero, sem piscar o valor final
+    io.observe(el);
+  });
 }
 
 // ---------- Parallax ----------
