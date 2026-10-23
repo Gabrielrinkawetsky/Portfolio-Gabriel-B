@@ -134,12 +134,7 @@ a { color: inherit; text-decoration: none; }
 /* centrada em 48cqw (como na referência), para não sair do lugar em telas mais largas */
 .person {
   position: absolute; z-index: 2; left: 48cqw; transform: translateX(-50%); bottom: -10cqh; height: 117.5cqh; aspect-ratio: 1024 / 1536;
-  pointer-events: none;
-  /* os ombros encostam nas laterais da foto original (corte reto): da metade para baixo o
-     corpo ganha um contorno arredondado e nítido, como o ombro do moletom da referência
-     por cima do painel. A cabeça (metade de cima) fica inteira. */
-  -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 52.5%), radial-gradient(ellipse 44% 52% at 54% 84%, #000 98.5%, transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 52%, transparent 52.5%), radial-gradient(ellipse 44% 52% at 54% 84%, #000 98.5%, transparent 100%);
+  pointer-events: none;   /* foto inteira, sem máscara: só o fundo foi removido */
 }
 .person img { display: block; width: 100%; height: 100%; }
 /* luz laranja na pessoa (a foto original é de estúdio, cinza): só onde há pessoa */
