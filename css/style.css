@@ -164,8 +164,9 @@ a { color: inherit; text-decoration: none; }
 .socials svg { width: 46%; height: 46%; fill: none; stroke: #fff; stroke-width: 1.6; }
 .socials svg .fill { fill: #fff; stroke: none; }
 
-/* ---------- Celular e tablet em pé: empilhado ---------- */
-@media (max-width: 860px) {
+/* ---------- Celular e tablet: empilhado ---------- */
+/* também vale para celular deitado (pouca altura), mesmo os mais largos que 860px */
+@media (max-width: 860px), (orientation: landscape) and (max-height: 500px) and (max-width: 1000px) {
   body { display: block; place-items: normal; }   /* sem centralizar: o hero (container-type) encolhia para 0 */
   /* container-type normal: cqw/cqh viram medidas da tela (svw/svh), que não mudam quando a
      barra de rolagem aparece. Com o hero como contêiner, a largura dele mudava com a barra,
@@ -186,9 +187,10 @@ a { color: inherit; text-decoration: none; }
   .stat { width: 120px; height: 112px; padding: 12px; }
   .stat-ico { top: 12px; right: 10px; width: 16px; height: 16px; }
   .person { position: relative; left: auto; bottom: auto; transform: none; height: auto; width: min(88%, 460px); margin: 4px auto 0; display: block; }
-  .socials { position: relative; left: auto; top: auto; transform: none; justify-content: center; margin-top: -84px; gap: 12px; }
+  .socials { position: relative; left: auto; top: auto; transform: none; justify-content: center; margin-top: -104px; gap: 12px; }
   .socials a { width: 40px; height: 40px; }
-  .panel { position: relative; inset: auto; margin: 18px 12px 0; padding: 24px 22px 22px; }
+  /* o painel fica na frente da foto e cobre a barra da camisa, para ela não encostar no menu */
+  .panel { position: relative; z-index: 3; inset: auto; margin: 40px 12px 0; padding: 24px 22px 22px; }
   .nav { position: static; justify-content: space-between; gap: 10px; }
   .nav a { font-size: 14px; }
   .pitch { position: static; width: auto; margin-top: 26px; }
@@ -200,6 +202,27 @@ a { color: inherit; text-decoration: none; }
   .quote-head strong { font-size: 14px; }
   .quote-head span { font-size: 12.5px; }
   .quote-card blockquote { font-size: 22px; margin-top: 16px; }
+}
+
+/* celulares pequenos (iPhone SE, Galaxy mini etc.) */
+@media (max-width: 360px) {
+  .intro { padding-left: 18px; padding-right: 18px; }
+  .stats { gap: 10px; }
+  .stat { width: calc(50% - 5px); max-width: 120px; }
+  .panel { margin-left: 8px; margin-right: 8px; padding: 20px 16px 18px; }
+  .nav a { font-size: 13px; }
+  .pitch-text { font-size: 21px; }
+  .quote-card blockquote { font-size: 19px; }
+}
+
+/* celular deitado: textos à esquerda e foto à direita, painel embaixo */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1000px) {
+  .hero { display: grid; grid-template-columns: 1fr 1fr; align-items: end; }
+  .intro { grid-column: 1; grid-row: 1; align-self: start; padding: 72px 0 32px 28px; }
+  .intro h1 { font-size: clamp(40px, 7cqw, 64px); }
+  .person { grid-column: 2; grid-row: 1; width: min(92%, 380px); margin: 0 auto; }
+  .socials { grid-column: 2; grid-row: 1; align-self: end; margin: 0 0 64px; }
+  .panel { grid-column: 1 / -1; grid-row: 2; margin-top: -24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
