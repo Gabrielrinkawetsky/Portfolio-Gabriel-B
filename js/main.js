@@ -1,4 +1,4 @@
-// Hero do portfólio: números contando, parallax (mouse no PC, rolagem no celular).
+// Hero do portfólio: números contando e a foto (entrada + parallax, com GSAP).
 // Quem prefere menos movimento (prefers-reduced-motion) vê tudo parado e os números finais.
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hero = document.querySelector('.hero');
@@ -33,38 +33,36 @@ if (!reduceMotion) {
   });
 }
 
-// ---------- Parallax ----------
-// O CSS move cada camada com --mx/--my (mouse, de -1 a 1) e --sy (rolagem, em px),
-// cada uma com uma intensidade diferente, o que dá a sensação de profundidade.
-if (hero && !reduceMotion) {
-  let targetX = 0, targetY = 0, x = 0, y = 0, raf = 0;
+// ---------- Foto: entrada e parallax (GSAP) ----------
+// Só a foto tem parallax. No PC ela segue o mouse; no celular (sem mouse) ela anda mais
+// devagar que a página na rolagem. Na entrada, sobe de baixo para cima aparecendo.
+const person = document.querySelector('.person');
+const { gsap, ScrollTrigger } = window;
 
-  const render = () => {
-    // aproxima suavemente do alvo, para o movimento não ficar duro
-    x += (targetX - x) * 0.08;
-    y += (targetY - y) * 0.08;
-    hero.style.setProperty('--mx', x.toFixed(4));
-    hero.style.setProperty('--my', y.toFixed(4));
-    raf = Math.abs(targetX - x) + Math.abs(targetY - y) > 0.001 ? requestAnimationFrame(render) : 0;
-  };
-  const kick = () => { if (!raf) raf = requestAnimationFrame(render); };
+if (person && gsap && !reduceMotion) {
+  if (ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+  // a foto é centralizada com translateX(-50%) no CSS; o GSAP passa a cuidar do transform
+  gsap.set(person, { xPercent: -50, x: 0, y: 0 });
+  gsap.from(person, { yPercent: 40, autoAlpha: 0, duration: 1.3, ease: 'expo.out', delay: 0.15 });
 
-  if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    hero.addEventListener('pointermove', (e) => {
+  const mm = gsap.matchMedia();
+  mm.add('(hover: hover) and (pointer: fine)', () => {
+    const toX = gsap.quickTo(person, 'x', { duration: 0.9, ease: 'power3.out' });
+    const toY = gsap.quickTo(person, 'y', { duration: 0.9, ease: 'power3.out' });
+    const move = (e) => {
       const r = hero.getBoundingClientRect();
-      targetX = ((e.clientX - r.left) / r.width) * 2 - 1;
-      targetY = ((e.clientY - r.top) / r.height) * 2 - 1;
-      kick();
-    });
-    hero.addEventListener('pointerleave', () => { targetX = 0; targetY = 0; kick(); });
-  }
-
-  let scrollRaf = 0;
-  addEventListener('scroll', () => {
-    if (scrollRaf) return;
-    scrollRaf = requestAnimationFrame(() => {
-      scrollRaf = 0;
-      hero.style.setProperty('--sy', Math.min(scrollY, innerHeight * 1.5).toFixed(1));
-    });
-  }, { passive: true });
+      toX((((e.clientX - r.left) / r.width) * 2 - 1) * 26);
+      toY((((e.clientY - r.top) / r.height) * 2 - 1) * 16);
+    };
+    const reset = () => { toX(0); toY(0); };
+    hero.addEventListener('pointermove', move);
+    hero.addEventListener('pointerleave', reset);
+    return () => { hero.removeEventListener('pointermove', move); hero.removeEventListener('pointerleave', reset); };
+  });
+  mm.add('not ((hover: hover) and (pointer: fine))', () => {
+    if (!ScrollTrigger) return;
+    gsap.to(person, { y: () => innerHeight * 0.25, ease: 'none',
+      scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6, invalidateOnRefresh: true } });
+  });
 }
+document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, a foto aparece

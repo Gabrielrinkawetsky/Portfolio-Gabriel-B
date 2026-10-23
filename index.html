@@ -10,6 +10,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="img/gabriel-recorte.webp" fetchpriority="high">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // esconde a foto até o GSAP preparar a entrada (o js/main.js tira a classe)
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('gsap-loading');
+  </script>
+  <script src="js/vendor/gsap.min.js" defer></script>
+  <script src="js/vendor/ScrollTrigger.min.js" defer></script>
   <script src="js/main.js" defer></script>
 </head>
 <body>

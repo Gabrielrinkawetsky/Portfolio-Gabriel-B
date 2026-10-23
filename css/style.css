@@ -275,33 +275,17 @@ a { color: inherit; text-decoration: none; }
   .panel { grid-column: 1 / -1; }
 }
 
-/* ---------- Movimento: fundo vivo e parallax ---------- */
-/* --mx/--my: posição do mouse na hero (-1 a 1); --sy: rolagem em px (js/main.js).
-   Cada camada anda com uma intensidade diferente: fundo para o lado oposto, foto mais,
-   textos menos. Usa a propriedade translate, que soma com os transform já existentes. */
-.hero { --mx: 0; --my: 0; --sy: 0; }
+/* ---------- Movimento: fundo vivo ---------- */
+/* O parallax e a entrada da foto ficam no js/main.js (GSAP); aqui só o fundo se mexe sozinho. */
 .hero-bg {
   inset: -6%;   /* folga para o fundo se mover sem mostrar as bordas */
-  translate: calc(var(--mx) * -16px) calc(var(--my) * -12px + var(--sy) * .35px);
   animation: hero-bg-drift 22s ease-in-out infinite alternate;
 }
 .hero-bg::after { animation: hero-glow-float 13s ease-in-out infinite alternate; }
-/* entrada: a pessoa sobe de baixo para cima ao abrir o site. --rise é um deslocamento extra
-   (registrado com @property para poder ser animado) que soma com o parallax */
-@property --rise { syntax: '<length-percentage>'; inherits: false; initial-value: 0%; }
-.person {
-  translate: calc(var(--mx) * 22px) calc(var(--my) * 14px + var(--sy) * .2px + var(--rise));
-  will-change: translate;
-  animation: person-rise 1.3s cubic-bezier(.16, .84, .24, 1) .15s both;
-}
-@keyframes person-rise {
-  from { --rise: 40%; opacity: 0; }
-  55%  { opacity: 1; }
-  to   { --rise: 0%; opacity: 1; }
-}
-.intro { translate: calc(var(--mx) * -10px) calc(var(--my) * -7px); }
-.quote-card { translate: calc(var(--mx) * 12px) calc(var(--my) * 9px); }
-.socials { translate: calc(var(--mx) * 16px) calc(var(--my) * 10px); }
+.person { will-change: transform; }
+/* enquanto o GSAP não prepara a entrada, a foto fica escondida (sem piscar no lugar final).
+   A classe é posta no <head> e tirada pelo js/main.js, inclusive se o GSAP não carregar. */
+.gsap-loading .person { opacity: 0; }
 
 /* cobras: faixas de sombra em forma de S, cada uma com um brilho claro ao lado (como o arco
    do fundo da referência). A camada inteira é desfocada junto (um único blur), o que deixa as
@@ -337,5 +321,5 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  .hero-bg, .hero-bg::after, .person, .snake, .snake use { animation: none; }
+  .hero-bg, .hero-bg::after, .snake, .snake use { animation: none; }
 }
