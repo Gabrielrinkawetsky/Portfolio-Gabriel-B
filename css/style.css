@@ -16,13 +16,12 @@ body { background: #e9e5e0; font-family: var(--font); color: var(--ink); -webkit
 a { color: inherit; text-decoration: none; }
 
 /* ---------- Moldura ---------- */
-/* mesma proporção da referência (735×525): o maior quadro que cabe na tela, centralizado */
-body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; }
+/* o hero ocupa a tela inteira (largura e altura da janela); as medidas em cqw/cqh
+   acompanham a tela, seja qual for a proporção dela */
 .hero {
   position: relative; overflow: hidden; isolation: isolate;
-  width: min(calc(100vw - 24px), calc((100svh - 24px) * 1.4), 1700px); aspect-ratio: 735 / 525;
-  margin: 12px auto; min-width: 860px;
-  border-radius: 22px;
+  width: 100%; height: 100vh; height: 100svh;
+  min-width: 860px; min-height: 560px;
   container-type: size;   /* cqw/cqh = % da largura/altura do hero */
 }
 
@@ -83,7 +82,7 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
   box-shadow: 0 14px 30px -18px rgba(50, 14, 3, .65);
 }
 .stat p { margin: 0; font-size: clamp(10px, .9cqw, 13px); font-weight: 500; }
-.stat strong { font-size: clamp(26px, 3.6cqw, 50px); font-weight: 400; letter-spacing: -.02em; line-height: 1; }
+.stat strong { font-size: clamp(26px, min(3.6cqw, 5cqh), 50px); font-weight: 400; letter-spacing: -.02em; line-height: 1; }
 .stat-ico {
   position: absolute; top: 1.2cqh; right: .9cqw; width: 1.9cqh; height: 1.9cqh; min-width: 15px; min-height: 15px;
   border-radius: 50%; background: var(--orange); display: grid; place-items: center;
@@ -102,17 +101,19 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
 .nav a { font-size: clamp(12px, 1.2cqw, 17px); font-weight: 500; color: var(--ink); transition: color .2s; }
 .nav a:hover { color: var(--orange); }
 
+/* fontes limitadas por min(cqw, cqh): em telas largas e baixas o texto não cresce até
+   invadir o card da citação (1cqw na referência = 1,4cqh) */
 .pitch { position: absolute; left: 23.7cqw; top: 20cqh; width: 21cqw; }
 .badge {
   display: inline-block; padding: .35em .9em; border: 1px solid #1b1b1b; border-radius: 999px;
   font-size: clamp(9px, .75cqw, 12px); font-weight: 500;
 }
 .pitch-text {
-  margin: 2.4cqh 0 0; font-size: clamp(18px, 2.25cqw, 32px); font-weight: 500; line-height: 1.24;
+  margin: 2.4cqh 0 0; font-size: clamp(18px, min(2.25cqw, 3.15cqh), 32px); font-weight: 500; line-height: 1.24;
   letter-spacing: -.012em; color: var(--ink);
 }
 .pitch-text em { font-style: normal; color: var(--orange); }
-.pitch-small { margin: 3cqh 0 0; font-size: clamp(11px, .95cqw, 14px); line-height: 1.45; color: var(--muted); }
+.pitch-small { margin: 3cqh 0 0; font-size: clamp(11px, min(.95cqw, 1.33cqh), 14px); line-height: 1.45; color: var(--muted); }
 
 .quote-card {
   position: absolute; z-index: 3; margin: 0; left: 23cqw; top: 60.8cqh; width: 21.2cqw; min-height: 27cqh;
@@ -124,14 +125,15 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
 .quote-head strong { display: block; font-size: clamp(11px, .95cqw, 14px); font-weight: 600; }
 .quote-head span { display: block; margin-top: .15em; font-size: clamp(10px, .85cqw, 13px); color: #6b6b6b; }
 .quote-card blockquote {
-  margin: 2.8cqh 0 0; font-size: clamp(16px, 1.95cqw, 28px); font-weight: 500; line-height: 1.2; letter-spacing: -.012em;
+  margin: 2.8cqh 0 0; font-size: clamp(16px, min(1.95cqw, 2.73cqh), 28px); font-weight: 500; line-height: 1.2; letter-spacing: -.012em;
 }
 
 /* ---------- Foto recortada (na frente do painel) ---------- */
 /* cabeça e ombros com o mesmo tamanho e lugar da referência: cabelo a ~6,7% do topo,
    rosto (cabelo ao queixo) em ~47% da altura, centro do cabelo a ~53% da largura */
+/* centrada em 48cqw (como na referência), para não sair do lugar em telas mais largas */
 .person {
-  position: absolute; z-index: 2; left: 20cqw; bottom: -10cqh; height: 117.5cqh; aspect-ratio: 1024 / 1536;
+  position: absolute; z-index: 2; left: 48cqw; transform: translateX(-50%); bottom: -10cqh; height: 117.5cqh; aspect-ratio: 1024 / 1536;
   pointer-events: none;
   /* os ombros encostam nas laterais da foto original (corte reto): da metade para baixo o
      corpo ganha um contorno arredondado e nítido, como o ombro do moletom da referência
@@ -168,7 +170,7 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
   /* container-type normal: cqw/cqh viram medidas da tela (svw/svh), que não mudam quando a
      barra de rolagem aparece. Com o hero como contêiner, a largura dele mudava com a barra,
      a altura do texto mudava junto e o navegador entrava num loop de layout (travava). */
-  .hero { width: auto; min-width: 0; aspect-ratio: auto; margin: 12px; height: auto; container-type: normal; padding-bottom: 20px;
+  .hero { width: auto; min-width: 0; aspect-ratio: auto; margin: 0; height: auto; min-height: 0; container-type: normal; padding-bottom: 20px;
     display: flex; flex-direction: column; }
   /* ordem no celular: textos, foto (com as redes por cima) e o painel por último */
   .intro { order: 1; }
