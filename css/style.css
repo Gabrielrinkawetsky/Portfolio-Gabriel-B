@@ -203,3 +203,9 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* ---------- Parallax da foto (js/parallax.js) ----------
+   A foto acompanha o mouse devagar, poucos pixels (só computador). "translate" separado do
+   "transform" para não brigar com nada que já mexa na foto. */
+.person { translate: var(--px, 0px) var(--py, 0px); will-change: translate; }
+@media (max-width: 860px) { .person { translate: none; will-change: auto; } }
