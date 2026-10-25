@@ -70,6 +70,20 @@ function splitWords(root) {
   return root.querySelectorAll('.word');
 }
 
+// ---------- Foto pronta (baixada e decodificada) ----------
+// O molde da luz laranja (mask-image) é a mesma foto, já no cache quando ela termina de baixar.
+// Trava de 6 s: nunca fica escondida.
+function photoReady() {
+  const img = person && person.querySelector('img');
+  return new Promise((resolve) => {
+    if (!img) return resolve();
+    const done = () => (img.decode ? img.decode() : Promise.resolve()).then(resolve, resolve);
+    if (img.complete && img.naturalWidth) done();
+    else { img.addEventListener('load', done, { once: true }); img.addEventListener('error', resolve, { once: true }); }
+    setTimeout(resolve, 6000);
+  });
+}
+
 // ---------- Entrada da hero (linha do tempo única, estilo awwwards) ----------
 if (animate) {
   if (ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
@@ -96,12 +110,23 @@ if (animate) {
   }
   tl.from(chars, { yPercent: 115, rotation: 8, transformOrigin: '0% 100%', duration: 1.25, stagger: 0.035 }, 0.3)
     .from($('.tag'), { clipPath: 'inset(0% 100% 0% 0% round 999px)', duration: 1.1, ease: 'expo.inOut', clearProps: 'clipPath' }, 0.3)
-    .from(person, { yPercent: 40, autoAlpha: 0, duration: 1.4 }, 0.5)
     .from($$('.nav a'), { yPercent: -120, autoAlpha: 0, duration: 0.9, stagger: 0.06, clearProps: 'transform,opacity,visibility' }, 0.6)
     .from($('.btn-work'), { y: 30, scale: 0.9, autoAlpha: 0, duration: 1, clearProps: 'transform,opacity,visibility' }, 0.85)
     .from($$('.stat'), { y: 50, autoAlpha: 0, duration: 1.1, stagger: 0.1, clearProps: 'transform,opacity,visibility' }, 0.95)
     .call(() => nums.forEach(countUp), null, 1.05)
     .from($$('.socials a'), { scale: 0.3, autoAlpha: 0, duration: 0.8, stagger: 0.08, ease: 'back.out(2)', clearProps: 'transform,opacity,visibility' }, 1.1);
+
+  // Foto: entra subindo e sendo descoberta de baixo para cima, sempre OPACA, e só depois de
+  // baixada e decodificada inteira. Antes ela entrava esmaecendo (autoAlpha 0 → 1) no tempo
+  // fixo de 0,5 s: o painel claro aparecia através dela ("branco por cima da foto, depois
+  // atrás") e, com internet lenta, ela surgia pela metade. Se demorar, entra assim que chegar.
+  gsap.set(person, { autoAlpha: 0 });
+  photoReady().then(() => requestAnimationFrame(() => requestAnimationFrame(() => {
+    gsap.fromTo(person,
+      { autoAlpha: 1, yPercent: 40, clipPath: 'inset(100% 0% 0% 0%)' },
+      { yPercent: 0, clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'expo.out',
+        delay: Math.max(0, 0.5 - tl.time()), clearProps: 'clipPath' });
+  })));
 
   // conteúdo do painel: selo, apresentação palavra por palavra e card da citação
   const panelIn = (t, at) => t
