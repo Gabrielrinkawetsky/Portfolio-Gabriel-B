@@ -10,12 +10,45 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="img/gabriel-recorte.webp" fetchpriority="high">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    // esconde a foto até o GSAP preparar a entrada (o js/main.js tira a classe)
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('gsap-loading');
+  </script>
+  <script src="js/vendor/gsap.min.js" defer></script>
+  <script src="js/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="js/main.js" defer></script>
 </head>
 <body>
 
 <main class="hero">
   <!-- Lado laranja: fundo com os arcos, logo, textos e números -->
-  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-bg" aria-hidden="true">
+    <!-- sombras em forma de cobra, correndo devagar pelo fundo laranja -->
+    <svg class="snakes" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" focusable="false">
+      <defs>
+      <path id="snake-s1" d="M-300 230 C 60 30, 300 400, 640 250 S 1000 50, 1300 240 S 1720 400, 1950 190" pathLength="1000"/>
+      <path id="snake-s2" d="M-300 640 C 40 480, 300 840, 650 670 S 1050 450, 1350 650 S 1760 840, 1950 610" pathLength="1000"/>
+      <path id="snake-s3" d="M 160 -260 C 470 40, 60 290, 380 540 S 560 920, 820 1260" pathLength="1000"/>
+      <path id="snake-s4" d="M 960 -260 C 1240 70, 860 310, 1150 570 S 1330 960, 1560 1260" pathLength="1000"/>
+      </defs>
+    <g class="snake s1">
+      <use href="#snake-s1" class="snake-light"/>
+      <use href="#snake-s1" class="snake-shadow"/>
+    </g>
+    <g class="snake s2">
+      <use href="#snake-s2" class="snake-light"/>
+      <use href="#snake-s2" class="snake-shadow"/>
+    </g>
+    <g class="snake s3">
+      <use href="#snake-s3" class="snake-light"/>
+      <use href="#snake-s3" class="snake-shadow"/>
+    </g>
+    <g class="snake s4">
+      <use href="#snake-s4" class="snake-light"/>
+      <use href="#snake-s4" class="snake-shadow"/>
+    </g>
+    </svg>
+  </div>
 
   <a class="logo" href="#" aria-label="Gabriel Ribeiro, início">
     <svg viewBox="0 0 40 40" aria-hidden="true">
@@ -32,12 +65,12 @@
       <div class="stat">
         <p>Sites no ar</p>
         <span class="stat-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 11l3.5-3.5 2.5 2.5L13 5.5M9.5 5.5H13V9"/></svg></span>
-        <strong>3+</strong>
+        <strong data-count="3" data-suffix="+">3+</strong>
       </div>
       <div class="stat">
         <p>Resposta</p>
         <span class="stat-ico" aria-hidden="true"><svg viewBox="0 0 16 16"><path d="M3 11l3.5-3.5 2.5 2.5L13 5.5M9.5 5.5H13V9"/></svg></span>
-        <strong>24h</strong>
+        <strong data-count="24" data-suffix="h">24h</strong>
       </div>
     </div>
   </section>
@@ -82,6 +115,5 @@
   </nav>
 </main>
 
-<script src="js/parallax.js" defer></script>
 </body>
 </html>

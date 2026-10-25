@@ -16,13 +16,12 @@ body { background: #e9e5e0; font-family: var(--font); color: var(--ink); -webkit
 a { color: inherit; text-decoration: none; }
 
 /* ---------- Moldura ---------- */
-/* mesma proporção da referência (735×525): o maior quadro que cabe na tela, centralizado */
-body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; }
+/* o hero ocupa a tela inteira (largura e altura da janela); as medidas em cqw/cqh
+   acompanham a tela, seja qual for a proporção dela */
 .hero {
   position: relative; overflow: hidden; isolation: isolate;
-  width: min(calc(100vw - 24px), calc((100svh - 24px) * 1.4), 1700px); aspect-ratio: 735 / 525;
-  margin: 12px auto; min-width: 860px;
-  border-radius: 22px;
+  width: 100%; height: 100vh; height: 100svh;
+  min-width: 860px; min-height: 560px;
   container-type: size;   /* cqw/cqh = % da largura/altura do hero */
 }
 
@@ -36,12 +35,8 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
     linear-gradient(160deg, #7a2a0a 0%, #d8611a 42%, #e9721f 62%, #b9480f 100%);
 }
 /* arcos grandes por trás da cabeça, como na referência */
-.hero-bg::before, .hero-bg::after {
+.hero-bg::after {
   content: ""; position: absolute; border-radius: 50%;
-}
-.hero-bg::before {
-  width: 62cqw; height: 62cqw; left: 16cqw; top: -46cqw;
-  background: radial-gradient(circle, rgba(150, 50, 10, 0) 58%, rgba(150, 50, 10, .32) 59%, rgba(150, 50, 10, .32) 70%, rgba(150, 50, 10, 0) 71%);
 }
 .hero-bg::after {
   width: 40cqw; height: 40cqw; left: 2cqw; top: 38cqh;
@@ -83,7 +78,7 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
   box-shadow: 0 14px 30px -18px rgba(50, 14, 3, .65);
 }
 .stat p { margin: 0; font-size: clamp(10px, .9cqw, 13px); font-weight: 500; }
-.stat strong { font-size: clamp(26px, 3.6cqw, 50px); font-weight: 400; letter-spacing: -.02em; line-height: 1; }
+.stat strong { font-size: clamp(26px, min(3.6cqw, 5cqh), 50px); font-weight: 400; letter-spacing: -.02em; line-height: 1; }
 .stat-ico {
   position: absolute; top: 1.2cqh; right: .9cqw; width: 1.9cqh; height: 1.9cqh; min-width: 15px; min-height: 15px;
   border-radius: 50%; background: var(--orange); display: grid; place-items: center;
@@ -102,17 +97,19 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
 .nav a { font-size: clamp(12px, 1.2cqw, 17px); font-weight: 500; color: var(--ink); transition: color .2s; }
 .nav a:hover { color: var(--orange); }
 
+/* fontes limitadas por min(cqw, cqh): em telas largas e baixas o texto não cresce até
+   invadir o card da citação (1cqw na referência = 1,4cqh) */
 .pitch { position: absolute; left: 23.7cqw; top: 20cqh; width: 21cqw; }
 .badge {
   display: inline-block; padding: .35em .9em; border: 1px solid #1b1b1b; border-radius: 999px;
   font-size: clamp(9px, .75cqw, 12px); font-weight: 500;
 }
 .pitch-text {
-  margin: 2.4cqh 0 0; font-size: clamp(18px, 2.25cqw, 32px); font-weight: 500; line-height: 1.24;
+  margin: 2.4cqh 0 0; font-size: clamp(18px, min(2.25cqw, 3.15cqh), 32px); font-weight: 500; line-height: 1.24;
   letter-spacing: -.012em; color: var(--ink);
 }
 .pitch-text em { font-style: normal; color: var(--orange); }
-.pitch-small { margin: 3cqh 0 0; font-size: clamp(11px, .95cqw, 14px); line-height: 1.45; color: var(--muted); }
+.pitch-small { margin: 3cqh 0 0; font-size: clamp(11px, min(.95cqw, 1.33cqh), 14px); line-height: 1.45; color: var(--muted); }
 
 .quote-card {
   position: absolute; z-index: 3; margin: 0; left: 23cqw; top: 60.8cqh; width: 21.2cqw; min-height: 27cqh;
@@ -124,20 +121,22 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
 .quote-head strong { display: block; font-size: clamp(11px, .95cqw, 14px); font-weight: 600; }
 .quote-head span { display: block; margin-top: .15em; font-size: clamp(10px, .85cqw, 13px); color: #6b6b6b; }
 .quote-card blockquote {
-  margin: 2.8cqh 0 0; font-size: clamp(16px, 1.95cqw, 28px); font-weight: 500; line-height: 1.2; letter-spacing: -.012em;
+  margin: 2.8cqh 0 0; font-size: clamp(16px, min(1.95cqw, 2.73cqh), 28px); font-weight: 500; line-height: 1.2; letter-spacing: -.012em;
 }
 
 /* ---------- Foto recortada (na frente do painel) ---------- */
 /* cabeça e ombros com o mesmo tamanho e lugar da referência: cabelo a ~6,7% do topo,
    rosto (cabelo ao queixo) em ~47% da altura, centro do cabelo a ~53% da largura */
+/* centrada em 48cqw (como na referência), para não sair do lugar em telas mais largas */
 .person {
-  position: absolute; z-index: 2; left: 20cqw; bottom: -10cqh; height: 117.5cqh; aspect-ratio: 1024 / 1536;
+  position: absolute; z-index: 2; left: 48cqw; transform: translateX(-50%); bottom: -10cqh; height: 117.5cqh; aspect-ratio: 1024 / 1536;
   pointer-events: none;
   /* os ombros encostam nas laterais da foto original (corte reto): da metade para baixo o
-     corpo ganha um contorno arredondado e nítido, como o ombro do moletom da referência
-     por cima do painel. A cabeça (metade de cima) fica inteira. */
+     corpo ganha um contorno arredondado dos dois lados. A cabeça (metade de cima) fica inteira.
+     Vale também para o celular. */
   -webkit-mask-image: linear-gradient(to bottom, #000 52%, transparent 52.5%), radial-gradient(ellipse 44% 52% at 54% 84%, #000 98.5%, transparent 100%);
           mask-image: linear-gradient(to bottom, #000 52%, transparent 52.5%), radial-gradient(ellipse 44% 52% at 54% 84%, #000 98.5%, transparent 100%);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;   /* sem isso, um fio do lado direito aparecia na borda esquerda */
 }
 .person img { display: block; width: 100%; height: 100%; }
 /* luz laranja na pessoa (a foto original é de estúdio, cinza): só onde há pessoa */
@@ -162,34 +161,68 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
 .socials svg { width: 46%; height: 46%; fill: none; stroke: #fff; stroke-width: 1.6; }
 .socials svg .fill { fill: #fff; stroke: none; }
 
-/* ---------- Celular e tablet em pé: empilhado ---------- */
-@media (max-width: 860px) {
+/* ---------- Celular e tablet: mesma composição do PC ---------- */
+/* a hero ocupa a primeira tela (--stage): título no alto, foto no meio, botão e números
+   embaixo à esquerda, redes à direita, menu ao lado do logo. O painel claro (apresentação
+   e citação) vem logo depois, como o painel da direita no PC.
+   Vale também para celular deitado (pouca altura), mesmo os mais largos que 860px. */
+@media (max-width: 860px), (orientation: landscape) and (max-height: 500px) and (max-width: 1000px) {
   body { display: block; place-items: normal; }   /* sem centralizar: o hero (container-type) encolhia para 0 */
   /* container-type normal: cqw/cqh viram medidas da tela (svw/svh), que não mudam quando a
      barra de rolagem aparece. Com o hero como contêiner, a largura dele mudava com a barra,
      a altura do texto mudava junto e o navegador entrava num loop de layout (travava). */
-  .hero { width: auto; min-width: 0; aspect-ratio: auto; margin: 12px; height: auto; container-type: normal; padding-bottom: 20px;
-    display: flex; flex-direction: column; }
-  /* ordem no celular: textos, foto (com as redes por cima) e o painel por último */
-  .intro { order: 1; }
-  .person { order: 2; }
-  .socials { order: 3; }
-  .panel { order: 4; }
-  .hero-bg::before { width: 120cqw; height: 120cqw; left: -10cqw; top: -90cqw; }
-  .logo { width: 34px; height: 34px; left: 20px; top: 20px; }
-  .intro { position: relative; left: auto; top: auto; padding: 84px 22px 0; }
-  .intro h1 { font-size: clamp(44px, 14cqw, 72px); margin-top: 18px; }
-  .btn-work { width: auto; height: 50px; padding: 0 34px; margin-top: 26px; }
-  .stats { position: static; margin-top: 26px; gap: 12px; }
-  .stat { width: 120px; height: 112px; padding: 12px; }
-  .stat-ico { top: 12px; right: 10px; width: 16px; height: 16px; }
-  .person { position: relative; left: auto; bottom: auto; transform: none; height: auto; width: min(88%, 460px); margin: 4px auto 0; display: block; }
-  .socials { position: relative; left: auto; top: auto; transform: none; justify-content: center; margin-top: -84px; gap: 12px; }
-  .socials a { width: 40px; height: 40px; }
-  .panel { position: relative; inset: auto; margin: 18px 12px 0; padding: 24px 22px 22px; }
-  .nav { position: static; justify-content: space-between; gap: 10px; }
-  .nav a { font-size: 14px; }
-  .pitch { position: static; width: auto; margin-top: 26px; }
+  .hero {
+    --stage: max(100svh, 600px);
+    width: auto; min-width: 0; height: auto; min-height: 0; container-type: normal; padding-bottom: 12px;
+    display: grid; grid-template-columns: 100%; grid-template-rows: var(--stage) auto;
+  }
+  .intro, .person, .socials { grid-row: 1; grid-column: 1; }
+  .panel { grid-row: 2; grid-column: 1; }
+
+  .hero-bg {
+    background:
+      radial-gradient(70cqw 40svh at 55% 45%, rgba(255, 160, 70, .95) 0%, rgba(246, 122, 36, .7) 40%, rgba(240, 110, 30, 0) 75%),
+      radial-gradient(90cqw 45svh at 0% 0%, #240a03 0%, rgba(60, 18, 5, .8) 35%, rgba(60, 18, 5, 0) 70%),
+      linear-gradient(170deg, #7a2a0a 0%, #d8611a 35%, #e9721f 60%, #b9480f 100%);
+  }
+  .logo { width: 32px; height: 32px; left: 20px; top: 20px; }
+  /* cobras do fundo: do tamanho da primeira tela (o fundo cobre a página inteira, que é bem
+     alta; sem isso o desenho ficava enorme e só uma fatia fina aparecia). .hero-bg na frente
+     para vencer a regra base de .snakes, que vem depois no arquivo */
+  .hero-bg .snakes { inset: auto; top: 6%; left: 50%; width: calc(var(--stage) * 1.6); height: var(--stage); transform: translateX(-50%); }
+  .hero-bg .snakes { filter: blur(13px); }
+  .hero-bg .snake-shadow { stroke: rgba(95, 26, 4, .38); }
+
+  /* menu: no alto, à direita do logo (no PC ele fica no alto do painel) */
+  /* z-index (funciona em item de grid sem position): a foto sobe por trás do painel na entrada */
+  .panel { position: static; z-index: 3; margin: 0 12px; padding: 26px 22px 22px; }
+  .nav { position: absolute; top: 26px; right: 20px; gap: 18px; z-index: 6; }
+  .nav a { font-size: 13px; color: #fff; }
+  .nav a:hover { color: #ffd2ae; }
+
+  /* textos: título no alto; botão e números embaixo, por cima da camisa */
+  .intro { position: relative; left: auto; top: auto; z-index: 4; display: flex; flex-direction: column; align-items: flex-start;
+    padding: 80px 20px 24px; }
+  .intro h1 { font-size: clamp(38px, min(12.5vw, 6.4svh), 72px); margin-top: 16px; text-shadow: 0 2px 24px rgba(40, 10, 2, .25); }
+  .btn-work { width: auto; height: 48px; min-height: 0; padding: 0 30px; margin-top: auto; }
+  .stats { position: static; margin-top: 14px; gap: 10px; }
+  .stat { width: 112px; height: 98px; min-width: 0; min-height: 0; padding: 11px 12px; }
+  .stat p { font-size: 11.5px; }
+  .stat strong { font-size: 34px; }
+  .stat-ico { top: 11px; right: 10px; width: 16px; height: 16px; }
+
+  /* foto no meio, presa embaixo da primeira tela, sem passar da largura da tela (a foto tem
+     2:3, então no máximo 75% da altura da tela). Contorno arredondado dos ombros igual ao PC. */
+  .person { position: relative; z-index: 2; left: 50%; bottom: auto; transform: translateX(-50%);
+    align-self: end; justify-self: start; width: min(100%, calc(var(--stage) * .5)); height: auto; margin: 0; }
+
+  /* redes: em coluna, embaixo à direita */
+  .socials { position: relative; left: auto; top: auto; transform: none; z-index: 6;
+    align-self: end; justify-self: end; flex-direction: column; gap: 10px; margin: 0 20px 24px 0; }
+  .socials a { width: 42px; height: 42px; }
+
+  /* painel claro */
+  .pitch { position: static; width: auto; }
   .pitch-text { font-size: 24px; margin-top: 14px; }
   .pitch-small { font-size: 13px; margin-top: 16px; }
   .badge { font-size: 11px; }
@@ -200,12 +233,104 @@ body { min-height: 100vh; min-height: 100svh; display: grid; place-items: center
   .quote-card blockquote { font-size: 22px; margin-top: 16px; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+/* tablet em pé: um pouco mais de respiro */
+@media (min-width: 600px) and (max-width: 860px) and (orientation: portrait) {
+  .intro { padding: 96px 40px 40px; }
+  .logo { left: 40px; top: 30px; width: 36px; height: 36px; }
+  .nav { top: 38px; right: 40px; gap: 32px; }
+  .nav a { font-size: 15px; }
+  .stat { width: 140px; height: 120px; }
+  .stat strong { font-size: 42px; }
+  .socials { margin: 0 40px 40px 0; }
+  .panel { margin: 0 20px; padding: 36px 40px 32px; }
 }
 
-/* ---------- Parallax da foto (js/parallax.js) ----------
-   A foto acompanha o mouse devagar, poucos pixels (só computador). "translate" separado do
-   "transform" para não brigar com nada que já mexa na foto. */
-.person { translate: var(--px, 0px) var(--py, 0px); will-change: translate; }
-@media (max-width: 860px) { .person { translate: none; will-change: auto; } }
+/* celulares pequenos (iPhone SE, Galaxy mini etc.) */
+@media (max-width: 360px) {
+  .logo { left: 16px; }
+  .nav { right: 16px; gap: 12px; }
+  .nav a { font-size: 12px; }
+  .intro { padding-left: 16px; padding-right: 16px; }
+  .stat { width: 100px; height: 90px; }
+  .stat strong { font-size: 30px; }
+  .socials { margin-right: 16px; }
+  .socials a { width: 38px; height: 38px; }
+  .panel { margin: 0 8px; padding: 22px 16px 18px; }
+  .pitch-text { font-size: 21px; }
+  .quote-card blockquote { font-size: 19px; }
+}
+
+/* celular deitado: textos à esquerda, foto no meio-direita, painel embaixo */
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 1000px) {
+  .hero { --stage: max(100svh, 340px); grid-template-columns: 1fr 1fr; }
+  .intro { grid-column: 1; padding: 64px 0 18px 28px; }
+  .intro h1 { font-size: clamp(32px, 10.5svh, 56px); margin-top: 10px; }
+  .btn-work { height: 42px; }
+  .stats { margin-top: 10px; }
+  .stat { width: 100px; height: 78px; }
+  .stat strong { font-size: 28px; }
+  .person { grid-column: 1 / -1; left: 58%; width: calc(var(--stage) * .92 * 2 / 3); }
+  .socials { grid-column: 2; margin: 0 24px 18px 0; }
+  .nav { right: 28px; }
+  .panel { grid-column: 1 / -1; }
+}
+
+/* ---------- Movimento: fundo vivo ---------- */
+/* O parallax e a entrada da foto ficam no js/main.js (GSAP); aqui só o fundo se mexe sozinho. */
+.hero-bg {
+  inset: -6%;   /* folga para o fundo se mover sem mostrar as bordas */
+  animation: hero-bg-drift 22s ease-in-out infinite alternate;
+}
+.hero-bg::after { animation: hero-glow-float 13s ease-in-out infinite alternate; }
+.person { will-change: transform; }
+/* enquanto o GSAP não prepara a entrada, o conteúdo da hero fica escondido (sem piscar no
+   lugar final). A classe é posta no <head> e tirada pelo js/main.js, inclusive se o GSAP não
+   carregar. */
+.gsap-loading :is(.logo, .intro, .panel, .socials, .person, .snakes) { opacity: 0; }
+
+/* máscaras da entrada do texto (js/main.js quebra o texto em letras/palavras): o texto sobe
+   de baixo da máscara. O padding com margem negativa dá espaço às letras que descem (g, p, ç)
+   sem mudar o espaçamento das linhas. */
+.line-mask { display: block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; }
+.intro h1 { display: flow-root; }   /* segura a margem negativa da última linha dentro do título (no PC ela vazava e o título crescia ~11px) */
+.char { display: inline-block; }
+.word-mask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .16em; margin-bottom: -.16em; }
+.word { display: inline-block; }
+.nowrap { white-space: nowrap; }
+
+/* cobras: faixas de sombra em forma de S, cada uma com um brilho claro ao lado (como o arco
+   do fundo da referência). A camada inteira é desfocada junto (um único blur), o que deixa as
+   bordas macias. O tracejado (um trecho visível, o resto vazio) anda pelo caminho e parece uma
+   cobra correndo; o grupo ainda ondula de leve para cima e para baixo. */
+.snakes { position: absolute; inset: 0; width: 100%; height: 100%; filter: blur(20px); will-change: transform; }
+.snake use {
+  fill: none; stroke-linecap: round;
+  stroke-dasharray: var(--len, 300) calc(1000 - var(--len, 300));
+  animation: snake-run var(--dur, 18s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+.snake-shadow { stroke: rgba(95, 26, 4, .30); stroke-width: 130; }
+.snake-light  { stroke: rgba(255, 175, 95, .16); stroke-width: 70; transform: translate(-22px, -80px); }
+.snake { animation: snake-sway var(--sway, 9s) ease-in-out infinite alternate; }
+.s1 { --len: 520; --dur: 20s; --delay: -4s;  --sway: 8s; }
+.s2 { --len: 480; --dur: 25s; --delay: -15s; --sway: 11s; }
+.s3 { --len: 560; --dur: 22s; --delay: -9s;  --sway: 9s; }
+.s4 { --len: 520; --dur: 28s; --delay: -20s; --sway: 12s; }
+@keyframes snake-run { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
+@keyframes snake-sway { from { transform: translateY(-18px); } to { transform: translateY(22px); } }
+
+@keyframes hero-bg-drift {
+  0%   { transform: scale(1)    rotate(0deg)    translate(0, 0); }
+  50%  { transform: scale(1.07) rotate(1.2deg)  translate(1.5%, -1.5%); }
+  100% { transform: scale(1.03) rotate(-1deg)   translate(-1.5%, 1.5%); }
+}
+@keyframes hero-glow-float {
+  0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+  50%  { transform: translate(14cqw, -10cqh) scale(1.35); opacity: .7; }
+  100% { transform: translate(28cqw, 6cqh) scale(1.1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+  .hero-bg, .hero-bg::after, .snake, .snake use { animation: none; }
+}
