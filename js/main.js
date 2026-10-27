@@ -123,9 +123,10 @@ if (animate) {
   gsap.set(person, { autoAlpha: 0 });
   photoReady().then(() => requestAnimationFrame(() => requestAnimationFrame(() => {
     gsap.fromTo(person,
-      { autoAlpha: 1, yPercent: 40, clipPath: 'inset(100% 0% 0% 0%)' },
-      { yPercent: 0, clipPath: 'inset(0% 0% 0% 0%)', duration: 1.4, ease: 'expo.out',
-        delay: Math.max(0, 0.5 - tl.time()), clearProps: 'clipPath' });
+      // sobe de baixo da moldura, inteira e opaca (sem efeito de aparecer)
+      { autoAlpha: 1, yPercent: 70 },
+      { yPercent: 0, duration: 1.4, ease: 'expo.out',
+        delay: Math.max(0, 0.5 - tl.time()) });
   })));
 
   // conteúdo do painel: selo, apresentação palavra por palavra e card da citação
