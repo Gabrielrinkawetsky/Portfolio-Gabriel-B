@@ -340,11 +340,9 @@ a { color: inherit; text-decoration: none; }
    (combina com a hero), texto em blocos, quatro áreas em lista com fios, stack por
    categoria (as principais em destaque, o resto em "ver stack completa") e chamada final. */
 .about { background: var(--panel); color: var(--ink); padding: clamp(80px, 11vw, 170px) 0 clamp(40px, 5vw, 80px); }
-/* troca de seção: a seção sobe um pouco por cima da anterior com os cantos de cima arredondados */
+/* troca de seção: a seção sobe um pouco por cima da anterior (borda reta: o usuário não gostou dos cantos arredondados) */
 .about {
   position: relative; z-index: 2; margin-top: -36px;
-  border-radius: 36px 36px 0 0;
-  box-shadow: 0 -18px 40px -24px rgba(40, 14, 4, .45);
 }
 .about-in { width: min(100% - 48px, 1320px); margin: 0 auto; }
 .about em { font-style: normal; color: var(--orange); }
