@@ -58,7 +58,7 @@ a { color: inherit; text-decoration: none; }
 .tag span { opacity: .9; }
 .intro h1 {
   margin: 2.6cqh 0 0; font-weight: 400; color: #fff;
-  font-size: clamp(44px, 9.6cqh, 112px); line-height: .95; letter-spacing: -.035em;
+  font-size: clamp(36px, 7.2cqh, 84px); line-height: .95; letter-spacing: -.035em;   /* título de 4 linhas: menor que o de 3 */
 }
 .btn-work {
   display: inline-flex; align-items: center; justify-content: center;
@@ -203,7 +203,7 @@ a { color: inherit; text-decoration: none; }
   /* textos: título no alto; botão e números embaixo, por cima da camisa */
   .intro { position: relative; left: auto; top: auto; z-index: 4; display: flex; flex-direction: column; align-items: flex-start;
     padding: 80px 20px 24px; }
-  .intro h1 { font-size: clamp(38px, min(12.5vw, 6.4svh), 72px); margin-top: 16px; text-shadow: 0 2px 24px rgba(40, 10, 2, .25); }
+  .intro h1 { font-size: clamp(32px, min(10vw, 5.2svh), 60px); margin-top: 16px; text-shadow: 0 2px 24px rgba(40, 10, 2, .25); }
   .btn-work { width: auto; height: 48px; min-height: 0; padding: 0 30px; margin-top: auto; }
   .stats { position: static; margin-top: 14px; gap: 10px; }
   .stat { width: 112px; height: 98px; min-width: 0; min-height: 0; padding: 11px 12px; }
