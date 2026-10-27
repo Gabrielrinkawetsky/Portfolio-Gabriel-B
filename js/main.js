@@ -167,8 +167,8 @@ if (animate && person) {
     const toY = gsap.quickTo(person, 'y', { duration: 1.8, ease: 'power3.out' });
     const move = (e) => {
       const r = hero.getBoundingClientRect();
-      toX((((e.clientX - r.left) / r.width) * 2 - 1) * 26);
-      toY((((e.clientY - r.top) / r.height) * 2 - 1) * 16);
+      toX((((e.clientX - r.left) / r.width) * 2 - 1) * 18);   // antes 26 px: o usuário pediu menos parallax
+      toY((((e.clientY - r.top) / r.height) * 2 - 1) * 11);   // antes 16 px
     };
     const reset = () => { toX(0); toY(0); };
     hero.addEventListener('pointermove', move);
@@ -177,7 +177,7 @@ if (animate && person) {
   });
   mm.add('not ((hover: hover) and (pointer: fine))', () => {
     if (!ScrollTrigger) return;
-    gsap.to(person, { y: () => innerHeight * 0.25, ease: 'none',
+    gsap.to(person, { y: () => innerHeight * 0.18, ease: 'none',
       scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6, invalidateOnRefresh: true } });
   });
 }
