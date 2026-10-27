@@ -185,3 +185,25 @@ if (animate && person) {
 }
 
 document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, tudo aparece
+
+// ---------- Sobre mim: revelação ao rolar ----------
+// Título palavra por palavra (mesmas máscaras da hero), foto descoberta de baixo para cima e
+// os blocos subindo em sequência, uma vez só. Sem GSAP ou com "reduzir movimento", tudo já
+// está visível (nada fica escondido por CSS).
+if (animate && ScrollTrigger) {
+  const about = document.querySelector('.about');
+  if (about) {
+    const words = splitWords(about.querySelector('.about-title'));
+    gsap.from(words, { yPercent: 110, duration: 1.1, stagger: 0.04, ease: 'expo.out',
+      scrollTrigger: { trigger: about.querySelector('.about-title'), start: 'top 85%', once: true } });
+    const photo = about.querySelector('[data-ab-photo]');
+    gsap.from(photo, { clipPath: 'inset(100% 0% 0% 0% round 16px)', duration: 1.4, ease: 'expo.inOut', clearProps: 'clipPath',
+      scrollTrigger: { trigger: photo, start: 'top 85%', once: true } });
+    gsap.from(photo.querySelector('img'), { scale: 1.25, duration: 1.8, ease: 'expo.out', clearProps: 'transform',
+      scrollTrigger: { trigger: photo, start: 'top 85%', once: true } });
+    ScrollTrigger.batch(about.querySelectorAll('[data-ab]'), {
+      start: 'top 88%', once: true,
+      onEnter: (els) => gsap.from(els, { y: 40, autoAlpha: 0, duration: 1, stagger: 0.08, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }),
+    });
+  }
+}
