@@ -29,7 +29,8 @@ const resetCount = (el) => { el.textContent = '0' + (el.dataset.suffix || ''); }
 // Cada linha/palavra fica dentro de uma "máscara" (overflow: hidden) e o texto sobe de baixo
 // dela, como se fosse revelado. Leitores de tela leem o título pelo aria-label.
 function splitChars(heading) {
-  const lines = heading.innerHTML.split(/<br\s*\/?>/i).map((l) => l.trim());
+  // &nbsp; vira o caractere de verdade: espaço comum some numa letra solta ("com IA" virava "comIA")
+  const lines = heading.innerHTML.split(/<br\s*\/?>/i).map((l) => l.trim().replace(/&nbsp;/g, ' '));
   heading.setAttribute('aria-label', lines.join(' '));
   heading.innerHTML = lines.map((line) =>
     `<span class="line-mask" aria-hidden="true"><span class="line">${
