@@ -124,7 +124,8 @@ if (animate) {
   photoReady().then(() => requestAnimationFrame(() => requestAnimationFrame(() => {
     gsap.fromTo(person,
       // sobe de baixo da moldura, inteira e opaca (sem efeito de aparecer)
-      { autoAlpha: 1, yPercent: 70 },
+      // começa inteira abaixo da moldura (nada à vista enquanto espera)
+      { autoAlpha: 1, yPercent: 100 },
       { yPercent: 0, duration: 1.4, ease: 'expo.out',
         delay: Math.max(0, 0.5 - tl.time()) });
   })));
