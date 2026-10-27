@@ -182,6 +182,13 @@ if (animate && person) {
     gsap.to(person, { y: () => innerHeight * 0.18, ease: 'none',
       scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.6, invalidateOnRefresh: true } });
   });
+  // zoom ao rolar (PC e celular): descendo a página a foto cresce até 12%, a partir dos pés,
+  // dando profundidade; subindo, volta. Só scale (sem transparência: o painel não aparece
+  // através da foto); não briga com o x/y do parallax nem com a entrada.
+  if (ScrollTrigger) {
+    gsap.to(person, { scale: 1.12, transformOrigin: '50% 100%', ease: 'none',
+      scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: 0.8, invalidateOnRefresh: true } });
+  }
 }
 
 document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, tudo aparece
