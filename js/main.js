@@ -215,3 +215,11 @@ if (animate && ScrollTrigger) {
     });
   }
 }
+// selo da seção Sobre mim: o fio cresce quando aparece na tela
+{
+  const k = document.querySelector('.about-kicker');
+  if (k && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { k.classList.add('is-in'); io.disconnect(); } }, { threshold: 0.6 });
+    io.observe(k);
+  } else if (k) k.classList.add('is-in');
+}
