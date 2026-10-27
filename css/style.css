@@ -117,7 +117,7 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 18px 36px -24px rgba(30, 20, 10, .45);
 }
 .quote-head { display: flex; align-items: center; gap: .9cqw; }
-.quote-head img { width: 6.6cqh; height: 6.6cqh; min-width: 40px; min-height: 40px; border-radius: 6px; object-fit: cover; }
+.quote-head img { width: 5.2cqh; height: 5.2cqh; min-width: 34px; min-height: 34px; border-radius: 6px; object-fit: cover; }
 .quote-head strong { display: block; font-size: clamp(11px, .95cqw, 14px); font-weight: 600; }
 .quote-head span { display: block; margin-top: .15em; font-size: clamp(10px, .85cqw, 13px); color: #6b6b6b; }
 .quote-card blockquote {
