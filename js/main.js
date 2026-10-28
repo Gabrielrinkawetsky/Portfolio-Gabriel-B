@@ -202,3 +202,29 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
     io.observe(k);
   } else if (k) k.classList.add('is-in');
 }
+
+// "O que eu entrego": o fio laranja desce junto com a rolagem (a ponta fica a 60% da altura da tela),
+// com um leve atraso para ficar macio; o item acende quando o fio passa do começo dele
+{
+  const list = document.querySelector('.about-areas ol');
+  const items = list ? [...list.children] : [];
+  if (list && reduceMotion) { list.style.setProperty('--p', 1); items.forEach((li) => li.classList.add('is-on')); }
+  else if (list) {
+    list.classList.add('is-live');
+    let cur = 0, raf = 0;
+    const target = () => { const r = list.getBoundingClientRect(); return Math.min(1, Math.max(0, (innerHeight * 0.6 - r.top) / r.height)); };
+    const tick = () => {
+      const t = target();
+      cur += (t - cur) * 0.12;
+      if (Math.abs(t - cur) < 0.0005) cur = t;
+      list.style.setProperty('--p', cur.toFixed(4));
+      const tip = cur * list.offsetHeight;
+      for (const li of items) li.classList.toggle('is-on', tip >= li.offsetTop + li.offsetHeight * 0.3);
+      raf = cur === t ? 0 : requestAnimationFrame(tick);
+    };
+    const go = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    addEventListener('scroll', go, { passive: true });
+    addEventListener('resize', go);
+    go();
+  }
+}
