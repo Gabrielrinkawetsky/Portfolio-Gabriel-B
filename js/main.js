@@ -204,11 +204,6 @@ if (animate && ScrollTrigger) {
     const words = splitWords(about.querySelector('.about-title'));
     gsap.from(words, { yPercent: 110, duration: 1.1, stagger: 0.04, ease: 'expo.out',
       scrollTrigger: { trigger: about.querySelector('.about-title'), start: 'top 85%', once: true } });
-    const photo = about.querySelector('[data-ab-photo]');
-    gsap.from(photo, { clipPath: 'inset(100% 0% 0% 0% round 16px)', duration: 1.4, ease: 'expo.inOut', clearProps: 'clipPath',
-      scrollTrigger: { trigger: photo, start: 'top 85%', once: true } });
-    gsap.from(photo.querySelector('img'), { scale: 1.25, duration: 1.8, ease: 'expo.out', clearProps: 'transform',
-      scrollTrigger: { trigger: photo, start: 'top 85%', once: true } });
     ScrollTrigger.batch(about.querySelectorAll('[data-ab]'), {
       start: 'top 88%', once: true,
       onEnter: (els) => gsap.from(els, { y: 40, autoAlpha: 0, duration: 1, stagger: 0.08, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }),
@@ -234,3 +229,82 @@ if (window.Lenis && !reduceMotion) {
     gsap.ticker.lagSmoothing(0);
   }
 }
+
+// ---------- Crachá pendurado no "g" de "Código" (Sobre mim) ----------
+// Pêndulo simples: o cordão sai do "g" do título e o crachá fica na ponta. Ao aparecer
+// na tela ele cai de cima balançando; dá para arrastar (mouse ou dedo) e ele volta a balançar.
+// ponytail: física 2D de um pêndulo só (sem 3D); trocar por react-three-fiber se quiser o cordão dobrando.
+(() => {
+  const about = document.querySelector('.about');
+  const slot = about && about.querySelector('.badge-slot');
+  const lan = slot && slot.querySelector('.lanyard');
+  const title = about && about.querySelector('.about-title');
+  if (!lan || !title) return;
+  const strap = lan.querySelector('.strap');
+  const REST = -0.05;                 // leve inclinação parada, como no vídeo
+  let ax = 0, ay = 0, L = 200, a = REST, v = 0, drag = null, running = false, last = 0, drop = 1;
+
+  // posição do "g" de "Código" (o título pode estar separado em palavras pelo GSAP)
+  function anchor() {
+    const tw = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = tw.nextNode())) {
+      const i = n.data.indexOf('Código');
+      if (i < 0) continue;
+      const r = document.createRange(); r.setStart(n, i + 4); r.setEnd(n, i + 5);
+      return r.getBoundingClientRect();
+    }
+    return title.getBoundingClientRect();
+  }
+  function place() {
+    const g = anchor(), ar = about.getBoundingClientRect(), sr = slot.getBoundingClientRect();
+    ax = g.left + g.width / 2 - ar.left;
+    ay = g.bottom - g.height * 0.12 - ar.top;           // na curvinha de baixo do "g"
+    L = Math.max(140, sr.top - ar.top + 70 - ay);
+    lan.style.left = ax + 'px'; lan.style.top = ay + 'px';
+    strap.style.height = L + 'px';
+    lan.style.setProperty('--L', L + 'px');
+  }
+  function draw() {
+    lan.style.transform = `translateY(${-drop * (L + 420)}px) rotate(${a}rad)`;
+    lan.style.setProperty('--tilt', (v * 0.06).toFixed(3) + 'rad');   // o cartão gira um pouco com a velocidade
+  }
+  function step(t) {
+    const dt = Math.min(0.033, (t - last) / 1000 || 0.016); last = t;
+    if (!drag) { v += (-16 * Math.sin(a - REST) - 1.4 * v) * dt; a += v * dt; }
+    drop = Math.max(0, drop - dt * 2.2);
+    place();   // o título ainda pode estar animando: o "g" muda de lugar
+    draw();
+    if (drag || drop > 0 || Math.abs(v) > 0.002 || Math.abs(a - REST) > 0.002) requestAnimationFrame(step);
+    else running = false;
+  }
+  const kick = () => { if (!running) { running = true; last = performance.now(); requestAnimationFrame(step); } };
+
+  place();
+  if (reduceMotion) { drop = 0; draw(); }
+  else {
+    drop = 1; draw();
+    new IntersectionObserver((e, o) => {
+      if (!e[0].isIntersecting) return;
+      o.disconnect(); place(); a = 0.9; v = 0; kick();
+    }, { threshold: 0.25 }).observe(slot);
+  }
+  addEventListener('resize', () => { place(); draw(); });
+  addEventListener('load', () => { place(); draw(); });
+  setTimeout(() => { place(); draw(); }, 1800);   // depois da entrada do título
+
+  // arrastar: o ângulo segue o ponteiro em volta do "g"
+  const badge = lan.querySelector('.badge');
+  badge.addEventListener('pointerdown', (e) => {
+    badge.setPointerCapture(e.pointerId); drag = { a, t: performance.now() }; drop = 0; kick();
+  });
+  badge.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    const ar = about.getBoundingClientRect();
+    const na = Math.max(-1.3, Math.min(1.3, Math.atan2(-(e.clientX - ar.left - ax), e.clientY - ar.top - ay)));
+    const now = performance.now();
+    v = (na - drag.a) / Math.max(0.008, (now - drag.t) / 1000); drag = { a: na, t: now }; a = na;
+  });
+  const up = () => { drag = null; v = Math.max(-6, Math.min(6, v)); kick(); };
+  badge.addEventListener('pointerup', up); badge.addEventListener('pointercancel', up);
+})();
