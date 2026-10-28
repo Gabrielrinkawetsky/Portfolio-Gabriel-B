@@ -493,7 +493,7 @@ a { color: inherit; text-decoration: none; }
 }
 /* ---------- Crachá pendurado (Sobre mim) ---------- */
 .about { position: relative; }
-.badge-slot { position: static; min-height: 560px; }   /* o .lanyard se posiciona pela seção .about */
+.cracha-slot { position: static; min-height: 560px; }   /* o .lanyard se posiciona pela seção .about */
 .lanyard { position: absolute; z-index: 5; width: 0; transform-origin: 0 0; will-change: transform; }
 .strap {
   position: absolute; left: -13px; top: 0; width: 26px; overflow: hidden;
@@ -504,25 +504,25 @@ a { color: inherit; text-decoration: none; }
   display: block; writing-mode: vertical-rl; white-space: nowrap; margin: 10px auto 0;
   font-size: 9px; font-weight: 600; letter-spacing: .3em; color: rgba(255, 255, 255, .75);
 }
-.badge-clip {
+.cracha-clip {
   position: absolute; left: -17px; top: var(--L, 0); width: 34px; height: 22px; border-radius: 6px;
   background: linear-gradient(180deg, #d9d9d9, #8f8f8f); box-shadow: inset 0 1px 0 #fff, 0 2px 4px rgba(0, 0, 0, .3);
   }
-.badge {
+.cracha {
   position: absolute; top: calc(var(--L, 0px) + 14px); left: -130px; width: 260px; margin: 0; padding: 12px 12px 14px;
   background: #fff; border-radius: 18px; cursor: grab; touch-action: none; user-select: none;
   transform-origin: 50% 0; transform: rotate(var(--tilt, 0rad));
   box-shadow: 0 30px 50px -24px rgba(0, 0, 0, .55), 0 2px 6px rgba(0, 0, 0, .12);
 }
-.badge:active { cursor: grabbing; }
-.badge-hole { display: block; width: 46px; height: 8px; margin: 0 auto 10px; border-radius: 6px; background: #e4e1dc; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25); }
-.badge img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 10px; filter: grayscale(1); pointer-events: none; }
-.badge figcaption { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; color: var(--ink); }
-.badge figcaption strong { font-size: 15px; font-weight: 600; }
-.badge figcaption span { font-size: 12px; color: #6b6b6b; }
+.cracha:active { cursor: grabbing; }
+.cracha-hole { display: block; width: 46px; height: 8px; margin: 0 auto 10px; border-radius: 6px; background: #e4e1dc; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25); }
+.cracha img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 10px; filter: grayscale(1); pointer-events: none; }
+.cracha figcaption { display: flex; flex-direction: column; gap: 2px; margin-top: 12px; color: var(--ink); }
+.cracha figcaption strong { font-size: 15px; font-weight: 600; }
+.cracha figcaption span { font-size: 12px; color: #6b6b6b; }
 @media (max-width: 860px) {
-  .badge-slot { min-height: 480px; }
-  .badge { width: 190px; left: -95px; padding: 10px 10px 12px; }   /* cabe com o "g" perto da margem */
+  .cracha-slot { min-height: 480px; }
+  .cracha { width: 190px; left: -95px; padding: 10px 10px 12px; }   /* cabe com o "g" perto da margem */
 }
 
 /* Celular: fim do painel claro com borda visível (antes encostava na seção Sobre, da mesma

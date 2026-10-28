@@ -236,7 +236,7 @@ if (window.Lenis && !reduceMotion) {
 // ponytail: física 2D de um pêndulo só (sem 3D); trocar por react-three-fiber se quiser o cordão dobrando.
 (() => {
   const about = document.querySelector('.about');
-  const slot = about && about.querySelector('.badge-slot');
+  const slot = about && about.querySelector('.cracha-slot');
   const lan = slot && slot.querySelector('.lanyard');
   const title = about && about.querySelector('.about-title');
   if (!lan || !title) return;
@@ -267,6 +267,7 @@ if (window.Lenis && !reduceMotion) {
   }
   function draw() {
     lan.style.transform = `translateY(${-drop * (L + 420)}px) rotate(${a}rad)`;
+    lan.style.visibility = drop >= 1 ? 'hidden' : '';   // antes de cair ficava aparecendo no pé da hero
     lan.style.setProperty('--tilt', (v * 0.06).toFixed(3) + 'rad');   // o cartão gira um pouco com a velocidade
   }
   function step(t) {
@@ -294,7 +295,7 @@ if (window.Lenis && !reduceMotion) {
   setTimeout(() => { place(); draw(); }, 1800);   // depois da entrada do título
 
   // arrastar: o ângulo segue o ponteiro em volta do "g"
-  const badge = lan.querySelector('.badge');
+  const badge = lan.querySelector('.cracha');
   badge.addEventListener('pointerdown', (e) => {
     badge.setPointerCapture(e.pointerId); drag = { a, t: performance.now() }; drop = 0; kick();
   });
