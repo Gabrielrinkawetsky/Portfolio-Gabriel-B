@@ -23,6 +23,7 @@ if (fig && title) {
 async function start() {
   const THREE = await import('./vendor/three.module.min.js');
   await document.fonts.load('600 20px "Inter Tight"').catch(() => {});
+  await document.fonts.load(getComputedStyle(title).font).catch(() => {});   // a do título, para medir o "g"
   const img = fig.querySelector('img');
   const photo = new Image(); photo.src = img.currentSrc || img.src; await photo.decode();
 
@@ -98,6 +99,7 @@ async function start() {
   const S = 64;
   const bandTex = tex(drawBand()); bandTex.wrapS = THREE.RepeatWrapping;
   const tile = BAND * bandTex.image.width / bandTex.image.height;   // quantos px da fita cada repetição ocupa
+  const LEAD = BAND * 1.3;   // trecho liso logo abaixo da dobra, antes do nome começar
   const bandPos = new Float32Array(S * 6), bandUv = new Float32Array(S * 4), idx = [];
   for (let i = 0; i < S - 1; i++) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
   const bandGeo = new THREE.BufferGeometry();
@@ -107,6 +109,10 @@ async function start() {
   const band = new THREE.Mesh(bandGeo, new THREE.MeshBasicMaterial({ map: bandTex, side: THREE.DoubleSide }));
   band.frustumCulled = false;
   scene.add(band);
+  // ponta da fita: dobra arredondada que passa por cima do traço de baixo do "g", como numa argola
+  const cap = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: '#111' }));
+  cap.frustumCulled = false;
+  scene.add(cap);
 
   // ----- física: pontos da fita (0 = preso no "g", N = topo do cartão) + 2 cantos de baixo do cartão -----
   const pts = Array.from({ length: N + 3 }, (_, i) => ({ x: 0, y: 0, z: 0, px: 0, py: 0, pz: 0, w: i === 0 ? 0 : i >= N ? 0.35 : 1, card: i >= N }));
@@ -121,17 +127,42 @@ async function start() {
       const i = n.data.indexOf('Código');
       if (i < 0) continue;
       const rg = document.createRange(); rg.setStart(n, i + 4); rg.setEnd(n, i + 5);
-      return rg.getBoundingClientRect();
+      return { r: rg.getBoundingClientRect(), el: n.parentElement };
     }
-    return title.getBoundingClientRect();
+    return { r: title.getBoundingClientRect(), el: title };
+  }
+  // centro do traço de baixo do "g" e a grossura dele: desenha a letra num canvas com a mesma fonte e procura
+  // a tinta mais baixa. Fica como fração da caixa da letra, que acompanha o tamanho da fonte.
+  let tail = { x: 0.5, y: 0.88, th: 0.08 };
+  function measureTail() {
+    const { r, el } = anchor(), cs = getComputedStyle(el), k = 3;
+    const c = document.createElement('canvas'); c.width = Math.ceil(r.width * k) + 16; c.height = Math.ceil(r.height * k) + 16;
+    const x = c.getContext('2d', { willReadFrequently: true });
+    x.scale(k, k); x.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+    x.fillText('g', 0, x.measureText('g').fontBoundingBoxAscent);
+    const a = x.getImageData(0, 0, c.width, c.height).data, ink = (px, py) => a[(py * c.width + px) * 4 + 3] > 128;
+    for (let py = c.height - 1; py >= 0; py--) {
+      let lo = -1, hi = -1;
+      for (let px = 0; px < c.width; px++) if (ink(px, py)) { if (lo < 0) lo = px; hi = px; }
+      if (lo < 0) continue;
+      const cx = Math.round((lo + hi) / 2);
+      let top = py; while (top > 0 && ink(cx, top - 1)) top--;
+      tail = { x: cx / k / r.width, y: (py + top) / 2 / k / r.height, th: (py - top + 1) / k / r.height };
+      return;
+    }
   }
   function pin() {
-    const g = anchor(), ar = about.getBoundingClientRect();
-    A.x = A.px = g.left + g.width / 2 - ar.left;
-    A.y = A.py = g.bottom - g.height * 0.12 - ar.top;   // na curvinha de baixo do "g"
+    const { r } = anchor(), ar = about.getBoundingClientRect();
+    A.x = A.px = r.left + r.width * tail.x - ar.left;
+    A.y = A.py = r.top + r.height * tail.y - ar.top;
   }
   function layout() {
-    pin();
+    measureTail(); pin();
+    // dobra: sobe meia grossura do traço e arredonda por cima; embaixo é meio círculo, para a fita sair lisa em qualquer ângulo
+    const th = tail.th * anchor().r.height, hw = BAND / 2, s = new THREE.Shape();
+    s.moveTo(-hw, 0); s.absarc(0, 0, hw, Math.PI, Math.PI * 2, false); s.lineTo(hw, th / 2);
+    s.absellipse(0, th / 2, hw, BAND * 0.32, 0, Math.PI, false); s.lineTo(-hw, 0);
+    cap.geometry.dispose(); cap.geometry = new THREE.ShapeGeometry(s, 12);
     const ar = about.getBoundingClientRect(), sr = slot.getBoundingClientRect();
     L = Math.max(120, sr.top - ar.top + 40 - A.y);   // o cartão fica 40px abaixo do topo da coluna
     cw = about.clientWidth; ch = Math.min(about.clientHeight, Math.ceil(A.y + L + H + 120));
@@ -212,12 +243,14 @@ async function start() {
       const k = THREE.MathUtils.smoothstep(i / (S - 1), 0.8, 1);   // perto do clipe a fita deita junto com o cartão
       cr.copy(right); if (cr.dot(side) < 0) cr.negate();
       side.lerp(cr, k).normalize().multiplyScalar(BAND / 2);
-      if (i) u += smp[i].distanceTo(smp[i - 1]) / tile;
-      const p = smp[i], o = i * 6;
+      if (i) u += smp[i].distanceTo(smp[i - 1]);
+      const p = smp[i], o = i * 6, tu = u < LEAD ? -0.01 : (u - LEAD) / tile;   // -0.01 = fim da repetição, que é só fundo
+      bandUv.set([tu, 0, tu, 1], i * 4);
       bandPos[o] = p.x - side.x; bandPos[o + 1] = p.y - side.y; bandPos[o + 2] = p.z - side.z;
       bandPos[o + 3] = p.x + side.x; bandPos[o + 4] = p.y + side.y; bandPos[o + 5] = p.z + side.z;
-      bandUv.set([u, 0, u, 1], i * 4);
     }
+    tan.subVectors(smp[1], smp[0]);
+    cap.position.copy(smp[0]); cap.rotation.z = (Math.atan2(-tan.y, -tan.x) - Math.PI / 2) * 0.3;   // presa no traço: quase não gira
     bandGeo.attributes.position.needsUpdate = true;
     bandGeo.attributes.uv.needsUpdate = true;
     renderer.render(scene, camera);
