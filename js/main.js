@@ -228,3 +228,70 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
     go();
   }
 }
+
+// Projetos: carrossel de notebooks 3D (o desenho e as animações estão no css/style.css). O primeiro
+// notebook abre quando aparece na tela; setas, teclado (← →) e arrastar para o lado trocam de projeto:
+// o atual fecha e sai, o próximo entra pelo outro lado e abre. A tela só rola com a seção à vista.
+{
+  const pj = document.querySelector('.pj');
+  const slides = pj ? [...pj.querySelectorAll('.pj-slide')] : [];
+  if (slides.length) {
+    const count = pj.querySelector('.pj-count b'), dots = [...pj.querySelectorAll('.pj-dots i')];
+    let cur = -1;
+    const show = (i, dir = 1) => {
+      i = (i + slides.length) % slides.length;
+      if (i === cur) return;
+      const old = slides[cur], next = slides[i];
+      if (old) {
+        old.style.setProperty('--x', -dir);
+        old.classList.replace('is-active', 'is-leaving');
+        old.inert = true;
+        clearTimeout(old.leaveTimer);
+        old.leaveTimer = setTimeout(() => old.classList.remove('is-leaving'), 1300);   // depois de sumir (css: visibility .. 1.2s)
+      }
+      // o próximo vai para o lado de onde vem sem animar, e só então entra
+      clearTimeout(next.leaveTimer);
+      next.classList.remove('is-leaving');
+      next.style.transition = 'none'; next.style.setProperty('--x', dir); next.offsetWidth; next.style.transition = '';
+      next.classList.add('is-active');
+      next.inert = false;
+      cur = i;
+      count.textContent = String(i + 1).padStart(2, '0');
+      dots.forEach((d, k) => d.classList.toggle('is-on', k === i));
+    };
+    const step = (dir) => show(Math.max(cur, 0) + dir, dir);
+    slides.forEach((s, k) => { s.inert = k > 0; });
+
+    if ('IntersectionObserver' in window && !reduceMotion) {
+      new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); if (cur < 0) show(0); } }, { threshold: 0.45 })
+        .observe(slides[0].querySelector('.laptop'));
+      new IntersectionObserver(([e]) => pj.classList.toggle('is-paused', !e.isIntersecting)).observe(pj);
+    } else show(0);
+
+    pj.querySelectorAll('.pj-arrow').forEach((b) => b.addEventListener('click', () => step(Number(b.dataset.dir))));
+    pj.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); step(e.key === 'ArrowRight' ? 1 : -1); }
+    });
+
+    // arrastar para o lado (dedo ou mouse): mais de 50px na horizontal troca de projeto
+    let sx = null, sy = 0;
+    pj.querySelector('.pj-track').addEventListener('pointerdown', (e) => { if (e.button === 0) { sx = e.clientX; sy = e.clientY; } });
+    addEventListener('pointerup', (e) => {
+      if (sx === null) return;
+      const dx = e.clientX - sx, dy = e.clientY - sy;
+      sx = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.2) step(dx < 0 ? 1 : -1);
+    });
+    addEventListener('pointercancel', () => { sx = null; });
+
+    // no PC o notebook inclina um pouco seguindo o mouse
+    if (!reduceMotion && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      pj.addEventListener('pointermove', (e) => {
+        const r = pj.getBoundingClientRect();
+        pj.style.setProperty('--mx', (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
+        pj.style.setProperty('--my', (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
+      });
+      pj.addEventListener('pointerleave', () => { pj.style.setProperty('--mx', 0); pj.style.setProperty('--my', 0); });
+    }
+  }
+}
