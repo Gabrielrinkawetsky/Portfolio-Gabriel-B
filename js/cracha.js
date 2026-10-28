@@ -79,6 +79,12 @@ async function start() {
     new THREE.Mesh(face(1.4), gloss({ map: tex(drawFront()) })),
     new THREE.Mesh(face(-1.4, true), gloss({ map: tex(drawBack()) })),
   );
+  // brilho do vídeo: faixa de luz na diagonal sobre a frente, que desliza quando o cartão gira/balança.
+  // O reflexo do mapa de ambiente sozinho fica um véu borrado num cartão desse tamanho, então a faixa é desenhada.
+  const glintTex = tex(drawGlint()); glintTex.repeat.x = 1 / 3;
+  const glint = new THREE.Mesh(face(1.5), new THREE.MeshBasicMaterial({ map: glintTex, transparent: true,
+    blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false }));
+  inner.add(glint);
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(W + 80, H + 80),   // sombra suave atrás (o cartão branco sumia no fundo claro)
     new THREE.MeshBasicMaterial({ map: tex(drawShadow()), transparent: true, depthWrite: false }));
   shadow.position.set(4, -12, -10);
@@ -194,6 +200,8 @@ async function start() {
     nrm.crossVectors(right, up);
     card.quaternion.setFromRotationMatrix(m.makeBasis(right, up, nrm));
     card.position.copy(vT);
+    // parado, a faixa fica no alto à esquerda da foto; virar e inclinar o cartão a faz correr de lado
+    glintTex.offset.x = THREE.MathUtils.clamp(0.47 - nrm.x * 1.6 - Math.atan2(right.y, right.x) * 0.45, 0, 2 / 3);
 
     for (let i = 0; i <= N; i++) toW(pts[i], ctrl[i]);
     for (let i = 0; i < S; i++) curve.getPoint(i / (S - 1), smp[i]);
@@ -324,6 +332,15 @@ async function start() {
     const d = x.getImageData(0, 0, c.width, c.height), a = d.data;
     for (let i = 0; i < a.length; i += 4) a[i] = a[i + 1] = a[i + 2] = a[i] * 0.299 + a[i + 1] * 0.587 + a[i + 2] * 0.114;
     x.putImageData(d, 0, 0);
+    return c;
+  }
+  function drawGlint() {   // 3 cartões de largura; a faixa fica no do meio: borda nítida à direita, some aos poucos à esquerda
+    const k = 2, c = document.createElement('canvas'); c.width = W * 3 * k; c.height = H * k;
+    const x = c.getContext('2d'); x.scale(k, k);
+    x.translate(W * 1.5, H / 2); x.rotate(0.6);   // inclina para "/"
+    const bw = W * 0.55, g = x.createLinearGradient(-bw, 0, 0, 0);
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.7, 'rgba(255,255,255,.28)'); g.addColorStop(1, 'rgba(255,255,255,.55)');
+    x.fillStyle = g; x.fillRect(-bw, -H * 2, bw + 1.5, H * 4);
     return c;
   }
   function drawShadow() {
