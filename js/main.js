@@ -194,22 +194,6 @@ if (animate && person) {
 
 document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, tudo aparece
 
-// ---------- Sobre mim: revelação ao rolar ----------
-// Título palavra por palavra (mesmas máscaras da hero), foto descoberta de baixo para cima e
-// os blocos subindo em sequência, uma vez só. Sem GSAP ou com "reduzir movimento", tudo já
-// está visível (nada fica escondido por CSS).
-if (animate && ScrollTrigger) {
-  const about = document.querySelector('.about');
-  if (about) {
-    const words = splitWords(about.querySelector('.about-title'));
-    gsap.from(words, { yPercent: 110, duration: 1.1, stagger: 0.04, ease: 'expo.out',
-      scrollTrigger: { trigger: about.querySelector('.about-title'), start: 'top 85%', once: true } });
-    ScrollTrigger.batch(about.querySelectorAll('[data-ab]'), {
-      start: 'top 88%', once: true,
-      onEnter: (els) => gsap.from(els, { y: 40, autoAlpha: 0, duration: 1, stagger: 0.08, ease: 'expo.out', clearProps: 'transform,opacity,visibility' }),
-    });
-  }
-}
 // selo da seção Sobre mim: o fio cresce quando aparece na tela
 {
   const k = document.querySelector('.about-kicker');
