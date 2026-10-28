@@ -407,7 +407,7 @@ a { color: inherit; text-decoration: none; }
   .about-areas li:hover .n { color: var(--orange); }
 }
 
-.about-stack { margin-top: clamp(80px, 9vw, 150px); }
+.about-stack { margin-top: 0; }
 .about-stack dl { margin: 0; }
 .about-stack dl > div { display: grid; grid-template-columns: 220px 1fr; gap: 24px; padding: 18px 0; border-top: 1px solid #d9d6d1; }
 .about-stack dt { font-size: 14px; font-weight: 600; }
@@ -461,7 +461,8 @@ a { color: inherit; text-decoration: none; }
   .about-copy .about-lead { font-size: 20px; }
   .about-copy p:nth-of-type(3) { display: none; }
   .about-facts { margin-top: 18px; padding-top: 16px; gap: 22px; }
-  .about-areas, .about-stack { margin-top: 48px; }
+  .about-areas { margin-top: 48px; }
+  .about-stack { margin-top: 0; }
   .about-areas li { padding: 14px 0; align-items: center; }
   .about-areas li p { display: none; }
   .about-areas h3 { font-size: 20px; }
