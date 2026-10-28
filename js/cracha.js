@@ -44,8 +44,18 @@ async function start() {
   about.appendChild(canvas);
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(30, 1, 1, 10);
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x9a948d, 2.4));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.9); sun.position.set(-0.5, 1, 1.2); scene.add(sun);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x9a948d, 1.7));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(-0.5, 1, 1.2); scene.add(sun);
+  // reflexos: as mesmas faixas de luz (Lightformers) do Lanyard do React Bits, num mapa de ambiente.
+  // Com o verniz (clearcoat) do cartão, elas viram brilhos que correm pelo cartão quando ele gira.
+  const env = new THREE.Scene(), strip = new THREE.PlaneGeometry(1, 1);
+  for (const [i, p, r, sc] of [[2, [0, -1, 5], [0, 0, 1.047], [100, 0.1]], [3, [-1, -1, 1], [0, 0, 1.047], [100, 0.1]],
+    [3, [1, 1, 1], [0, 0, 1.047], [100, 0.1]], [10, [-10, 0, 14], [0, 1.571, 1.047], [100, 10]]]) {
+    const m = new THREE.Mesh(strip, new THREE.MeshBasicMaterial({ color: new THREE.Color(i, i, i), side: THREE.DoubleSide }));
+    m.position.set(...p); m.rotation.set(...r); m.scale.set(sc[0], sc[1], 1); env.add(m);
+  }
+  scene.environment = new THREE.PMREMGenerator(renderer).fromScene(env, 0.04).texture;
+  const gloss = (o) => new THREE.MeshPhysicalMaterial({ clearcoat: 1, clearcoatRoughness: 0.15, roughness: 0.9, metalness: 0.1, envMapIntensity: 0.35, ...o });
   const aniso = renderer.capabilities.getMaxAnisotropy();
   const tex = (c) => { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return t; };
 
@@ -65,15 +75,15 @@ async function start() {
   inner.position.y = -H / 2;
   inner.add(
     new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 2.4, bevelEnabled: false, curveSegments: 8 }).translate(0, 0, -1.2),
-      new THREE.MeshStandardMaterial({ color: 0xeceae6, roughness: 0.6 })),
-    new THREE.Mesh(face(1.4), new THREE.MeshStandardMaterial({ map: tex(drawFront()), roughness: 0.45 })),
-    new THREE.Mesh(face(-1.4, true), new THREE.MeshStandardMaterial({ map: tex(drawBack()), roughness: 0.45 })),
+      gloss({ color: 0xeceae6 })),
+    new THREE.Mesh(face(1.4), gloss({ map: tex(drawFront()) })),
+    new THREE.Mesh(face(-1.4, true), gloss({ map: tex(drawBack()) })),
   );
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(W + 80, H + 80),   // sombra suave atrás (o cartão branco sumia no fundo claro)
     new THREE.MeshBasicMaterial({ map: tex(drawShadow()), transparent: true, depthWrite: false }));
   shadow.position.set(4, -12, -10);
   inner.add(shadow);
-  const clip = new THREE.Mesh(new THREE.BoxGeometry(W * 0.2, 12, 5), new THREE.MeshStandardMaterial({ color: 0xcfcfcf, metalness: 0.25, roughness: 0.3 }));
+  const clip = new THREE.Mesh(new THREE.BoxGeometry(W * 0.2, 12, 5), new THREE.MeshStandardMaterial({ color: 0xcfcfcf, metalness: 0.25, roughness: 0.3, envMapIntensity: 0.25 }));
   clip.position.y = 2;
   card.add(inner, clip);
   scene.add(card);
