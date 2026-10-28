@@ -17,6 +17,7 @@
   <script src="js/vendor/gsap.min.js" defer></script>
   <script src="js/vendor/ScrollTrigger.min.js" defer></script>
   <script src="js/main.js" defer></script>
+  <script type="module" src="js/cracha.js"></script>
 </head>
 <body>
 
@@ -123,18 +124,14 @@
     <h2 class="about-title" id="about-title">Design que <em>emociona</em>.<br>Código que entrega.</h2>
 
     <div class="about-grid">
-      <!-- Crachá pendurado no "g" de "Código" (js/main.js posiciona o cordão e faz o balanço;
-           dá para arrastar). O espaço da coluna fica reservado pelo .cracha-slot -->
+      <!-- Crachá 3D pendurado no "g" de "Código": js/cracha.js desenha a fita e o cartão num canvas
+           (dá para arrastar). Este <figure> é a versão estática, usada sem WebGL e pelos leitores de tela -->
       <div class="cracha-slot">
-        <div class="lanyard">
-          <div class="strap" aria-hidden="true"><span>GABRIEL RIBEIRO • FULL STACK • GABRIEL RIBEIRO • FULL STACK • GABRIEL RIBEIRO • FULL STACK •</span></div>
-          <div class="cracha-clip" aria-hidden="true"></div>
-          <figure class="cracha">
-            <span class="cracha-hole" aria-hidden="true"></span>
-            <img src="img/gabriel-sobre.webp" alt="Gabriel Ribeiro de jaqueta preta, numa rua movimentada à noite" width="880" height="1100" loading="lazy" decoding="async" draggable="false">
-            <figcaption><strong>Gabriel Ribeiro</strong><span>22 anos · Desenvolvedor Web Full Stack</span></figcaption>
-          </figure>
-        </div>
+        <figure class="cracha">
+          <span class="cracha-hole" aria-hidden="true"></span>
+          <img src="img/gabriel-sobre.webp" alt="Gabriel Ribeiro de jaqueta preta, numa rua movimentada à noite" width="880" height="1100" loading="lazy" decoding="async" draggable="false">
+          <figcaption><strong>Gabriel Ribeiro</strong><span>22 anos · Desenvolvedor Web Full Stack</span></figcaption>
+        </figure>
       </div>
 
       <div class="about-copy">

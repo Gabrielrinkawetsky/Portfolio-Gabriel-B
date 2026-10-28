@@ -1,0 +1,335 @@
+// ---------- Crachá 3D pendurado no "g" de "Código" (Sobre mim) ----------
+// Estilo do Lanyard do React Bits: fita que dobra, cartão que gira em 3D, dá para arrastar
+// (mouse ou dedo) e ele volta balançando. O three.js só carrega quando a seção chega perto da tela.
+// Sem WebGL fica o <figure> estático do HTML (que também é o que os leitores de tela leem).
+// ponytail: física própria (Verlet, pontos + distâncias) no lugar de React + Rapier, que o site não usa.
+const about = document.querySelector('.about');
+const slot = about && about.querySelector('.cracha-slot');
+const title = about && about.querySelector('.about-title');
+const fig = slot && slot.querySelector('.cracha');
+
+if (fig && title) {
+  about.classList.add('cracha-loading');
+  new IntersectionObserver((e, o) => {
+    if (!e[0].isIntersecting) return;
+    o.disconnect();
+    start().catch((err) => {
+      console.warn('crachá 3D desligado:', err);
+      about.classList.remove('cracha-loading', 'cracha-3d');
+    });
+  }, { rootMargin: '400px 0px' }).observe(slot);
+}
+
+async function start() {
+  const THREE = await import('./vendor/three.module.min.js');
+  await document.fonts.load('600 20px "Inter Tight"').catch(() => {});
+  const img = fig.querySelector('img');
+  const photo = new Image(); photo.src = img.currentSrc || img.src; await photo.decode();
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const W = matchMedia('(max-width: 860px)').matches ? 150 : 180;   // largura do cartão (o antigo tinha 260 e ficava grande)
+  const H = Math.round(W * 1.54);
+  const BAND = Math.round(W * 0.12);   // largura da fita
+  const N = 12;                        // pontos da fita
+  const G = 3000, DAMPING = 1.2, STEP = 1 / 120, ITER = 12;
+  const KF = 0.004, TWIST = 0.12;      // mola que vira o cartão de frente / giro que o balanço dá
+
+  // ----- cena -----
+  const canvas = document.createElement('canvas');
+  canvas.className = 'cracha-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  canvas.style.visibility = 'hidden';
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  about.appendChild(canvas);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(30, 1, 1, 10);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x9a948d, 2.4));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.9); sun.position.set(-0.5, 1, 1.2); scene.add(sun);
+  const aniso = renderer.capabilities.getMaxAnisotropy();
+  const tex = (c) => { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; return t; };
+
+  // cartão: corpo com espessura + frente (foto e nome) + verso; a origem fica no meio da borda de cima
+  const shape = new THREE.Shape(), r = W * 0.07, x0 = -W / 2, y0 = -H / 2;
+  shape.moveTo(x0 + r, y0); shape.lineTo(x0 + W - r, y0); shape.quadraticCurveTo(x0 + W, y0, x0 + W, y0 + r);
+  shape.lineTo(x0 + W, y0 + H - r); shape.quadraticCurveTo(x0 + W, y0 + H, x0 + W - r, y0 + H);
+  shape.lineTo(x0 + r, y0 + H); shape.quadraticCurveTo(x0, y0 + H, x0, y0 + H - r);
+  shape.lineTo(x0, y0 + r); shape.quadraticCurveTo(x0, y0, x0 + r, y0);
+  const face = (z, back) => {
+    const g = new THREE.ShapeGeometry(shape, 8), p = g.attributes.position, uv = g.attributes.uv;
+    for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / W + 0.5, p.getY(i) / H + 0.5);
+    if (back) g.rotateY(Math.PI);
+    return g.translate(0, 0, z);
+  };
+  const card = new THREE.Group(), inner = new THREE.Group();
+  inner.position.y = -H / 2;
+  inner.add(
+    new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 2.4, bevelEnabled: false, curveSegments: 8 }).translate(0, 0, -1.2),
+      new THREE.MeshStandardMaterial({ color: 0xeceae6, roughness: 0.6 })),
+    new THREE.Mesh(face(1.4), new THREE.MeshStandardMaterial({ map: tex(drawFront()), roughness: 0.45 })),
+    new THREE.Mesh(face(-1.4, true), new THREE.MeshStandardMaterial({ map: tex(drawBack()), roughness: 0.45 })),
+  );
+  const shadow = new THREE.Mesh(new THREE.PlaneGeometry(W + 80, H + 80),   // sombra suave atrás (o cartão branco sumia no fundo claro)
+    new THREE.MeshBasicMaterial({ map: tex(drawShadow()), transparent: true, depthWrite: false }));
+  shadow.position.set(4, -12, -10);
+  inner.add(shadow);
+  const clip = new THREE.Mesh(new THREE.BoxGeometry(W * 0.2, 12, 5), new THREE.MeshStandardMaterial({ color: 0xcfcfcf, metalness: 0.25, roughness: 0.3 }));
+  clip.position.y = 2;
+  card.add(inner, clip);
+  scene.add(card);
+
+  // fita: tira plana ao longo de uma curva pelos pontos do cordão, com o nome repetido
+  const S = 64;
+  const bandTex = tex(drawBand()); bandTex.wrapS = THREE.RepeatWrapping;
+  const tile = BAND * bandTex.image.width / bandTex.image.height;   // quantos px da fita cada repetição ocupa
+  const bandPos = new Float32Array(S * 6), bandUv = new Float32Array(S * 4), idx = [];
+  for (let i = 0; i < S - 1; i++) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+  const bandGeo = new THREE.BufferGeometry();
+  bandGeo.setAttribute('position', new THREE.BufferAttribute(bandPos, 3));
+  bandGeo.setAttribute('uv', new THREE.BufferAttribute(bandUv, 2));
+  bandGeo.setIndex(idx);
+  const band = new THREE.Mesh(bandGeo, new THREE.MeshBasicMaterial({ map: bandTex, side: THREE.DoubleSide }));
+  band.frustumCulled = false;
+  scene.add(band);
+
+  // ----- física: pontos da fita (0 = preso no "g", N = topo do cartão) + 2 cantos de baixo do cartão -----
+  const pts = Array.from({ length: N + 3 }, (_, i) => ({ x: 0, y: 0, z: 0, px: 0, py: 0, pz: 0, w: i === 0 ? 0 : i >= N ? 0.35 : 1, card: i >= N }));
+  const A = pts[0], T = pts[N], BL = pts[N + 1], BR = pts[N + 2], cardPts = [T, BL, BR];
+  const D = Math.hypot(W / 2, H);
+  let cw = 0, ch = 0, L = 200, drag = null, shown = false;
+
+  function anchor() {   // posição do "g" de "Código" (o título pode estar separado em palavras pelo GSAP)
+    const tw = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = tw.nextNode())) {
+      const i = n.data.indexOf('Código');
+      if (i < 0) continue;
+      const rg = document.createRange(); rg.setStart(n, i + 4); rg.setEnd(n, i + 5);
+      return rg.getBoundingClientRect();
+    }
+    return title.getBoundingClientRect();
+  }
+  function pin() {
+    const g = anchor(), ar = about.getBoundingClientRect();
+    A.x = A.px = g.left + g.width / 2 - ar.left;
+    A.y = A.py = g.bottom - g.height * 0.12 - ar.top;   // na curvinha de baixo do "g"
+  }
+  function layout() {
+    pin();
+    const ar = about.getBoundingClientRect(), sr = slot.getBoundingClientRect();
+    L = Math.max(120, sr.top - ar.top + 40 - A.y);   // o cartão fica 40px abaixo do topo da coluna
+    cw = about.clientWidth; ch = Math.min(about.clientHeight, Math.ceil(A.y + L + H + 120));
+    renderer.setSize(cw, ch);
+    camera.aspect = cw / ch;
+    camera.position.z = ch / 2 / Math.tan(THREE.MathUtils.degToRad(15));   // 1 unidade = 1px no plano z = 0
+    camera.near = camera.position.z * 0.5; camera.far = camera.position.z * 1.5;
+    camera.updateProjectionMatrix();
+  }
+  function hang(angle) {   // fita esticada num ângulo, cartão reto na ponta, tudo parado
+    const sx = Math.sin(angle), sy = Math.cos(angle);
+    for (let i = 1; i <= N; i++) Object.assign(pts[i], { x: A.x + sx * L * i / N, y: A.y + sy * L * i / N, z: 0 });
+    Object.assign(BL, { x: T.x - W / 2, y: T.y + H, z: 0 });
+    Object.assign(BR, { x: T.x + W / 2, y: T.y + H, z: 0 });
+    for (const p of pts) { p.px = p.x; p.py = p.y; p.pz = p.z; }
+  }
+  function keep(a, b, len, rope) {
+    const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z, d = Math.hypot(dx, dy, dz) || 1e-6, sw = a.w + b.w;
+    if ((rope && d <= len) || sw === 0) return;
+    const k = (d - len) / d / sw;
+    a.x += dx * k * a.w; a.y += dy * k * a.w; a.z += dz * k * a.w;
+    b.x -= dx * k * b.w; b.y -= dy * k * b.w; b.z -= dz * k * b.w;
+  }
+  function step() {
+    const damp = Math.exp(-DAMPING * STEP);
+    const cx = (T.x + BL.x + BR.x) / 3, cy = (T.y + BL.y + BR.y) / 3;
+    const vcx = (cx - (T.px + BL.px + BR.px) / 3) / STEP;
+    let moved = 0;
+    for (const p of pts) {
+      const vx = (p.x - p.px) * damp, vy = (p.y - p.py) * damp, vz = (p.z - p.pz) * damp;
+      p.px = p.x; p.py = p.y; p.pz = p.z;
+      if (p === A) continue;
+      if (drag && p.card) { p.x += (drag.x - cx) * 0.3; p.y += (drag.y - cy) * 0.3; p.z += vz; }
+      else { p.x += vx; p.y += vy + G * STEP * STEP; p.z += vz; }
+      p.z *= 0.998;
+      moved = Math.max(moved, Math.abs(p.x - p.px) + Math.abs(p.y - p.py) + Math.abs(p.z - p.pz));
+    }
+    // o balanço gira o cartão; a mola o traz de volta de frente
+    const tw = drag ? 0 : vcx * TWIST * STEP;
+    BL.z += tw; BR.z -= tw;
+    const yaw = (BR.z - BL.z) * KF, pitch = (T.z - (BL.z + BR.z) / 2) * KF;
+    BR.z += pitch - yaw; BL.z += pitch + yaw;
+    for (let it = 0; it < ITER; it++) {
+      for (let i = 0; i < N; i++) keep(pts[i], pts[i + 1], L / N, true);
+      keep(T, BL, D); keep(T, BR, D); keep(BL, BR, W);
+    }
+    if (drag) {   // arrastando: o cartão não passa do comprimento da fita
+      const dx = T.x - A.x, dy = T.y - A.y, d = Math.hypot(dx, dy), over = d - L * 1.02;
+      if (over > 0) for (const p of cardPts) { p.x -= dx / d * over; p.y -= dy / d * over; }
+    }
+    return moved;
+  }
+
+  // ----- desenho -----
+  const toW = (p, v) => v.set(p.x - cw / 2, ch / 2 - p.y, p.z);
+  const vT = new THREE.Vector3(), vL = new THREE.Vector3(), vR = new THREE.Vector3();
+  const up = new THREE.Vector3(), right = new THREE.Vector3(), nrm = new THREE.Vector3(), m = new THREE.Matrix4();
+  const ctrl = Array.from({ length: N + 1 }, () => new THREE.Vector3());
+  const curve = new THREE.CatmullRomCurve3(ctrl, false, 'centripetal');
+  const smp = Array.from({ length: S }, () => new THREE.Vector3());
+  const Z = new THREE.Vector3(0, 0, 1), tan = new THREE.Vector3(), side = new THREE.Vector3(), cr = new THREE.Vector3();
+  function draw() {
+    toW(T, vT); toW(BL, vL); toW(BR, vR);
+    up.addVectors(vL, vR).multiplyScalar(0.5).subVectors(vT, up).normalize();
+    right.subVectors(vR, vL); right.addScaledVector(up, -right.dot(up)).normalize();
+    nrm.crossVectors(right, up);
+    card.quaternion.setFromRotationMatrix(m.makeBasis(right, up, nrm));
+    card.position.copy(vT);
+
+    for (let i = 0; i <= N; i++) toW(pts[i], ctrl[i]);
+    for (let i = 0; i < S; i++) curve.getPoint(i / (S - 1), smp[i]);
+    let u = 0;
+    for (let i = 0; i < S; i++) {
+      tan.subVectors(smp[Math.min(S - 1, i + 1)], smp[Math.max(0, i - 1)]).normalize();
+      side.crossVectors(Z, tan).normalize();
+      const k = THREE.MathUtils.smoothstep(i / (S - 1), 0.8, 1);   // perto do clipe a fita deita junto com o cartão
+      cr.copy(right); if (cr.dot(side) < 0) cr.negate();
+      side.lerp(cr, k).normalize().multiplyScalar(BAND / 2);
+      if (i) u += smp[i].distanceTo(smp[i - 1]) / tile;
+      const p = smp[i], o = i * 6;
+      bandPos[o] = p.x - side.x; bandPos[o + 1] = p.y - side.y; bandPos[o + 2] = p.z - side.z;
+      bandPos[o + 3] = p.x + side.x; bandPos[o + 4] = p.y + side.y; bandPos[o + 5] = p.z + side.z;
+      bandUv.set([u, 0, u, 1], i * 4);
+    }
+    bandGeo.attributes.position.needsUpdate = true;
+    bandGeo.attributes.uv.needsUpdate = true;
+    renderer.render(scene, camera);
+  }
+
+  // ----- laço: só roda enquanto a seção está na tela e algo se mexe -----
+  let running = false, visible = true, last = 0, acc = 0, still = 0;
+  function frame(t) {
+    const dt = Math.min(0.05, (t - last) / 1000 || 1 / 60); last = t; acc += dt;
+    pin();   // o título pode estar animando: o "g" muda de lugar
+    let moved = 0;
+    while (acc >= STEP) { moved = Math.max(moved, step()); acc -= STEP; }
+    draw();
+    still = moved < 0.02 && !drag ? still + dt : 0;
+    if (visible && still < 0.5) requestAnimationFrame(frame); else running = false;
+  }
+  const kick = () => { still = 0; if (!running && visible && shown) { running = true; last = performance.now(); acc = 0; requestAnimationFrame(frame); } };
+
+  layout(); hang(0); draw();
+  about.classList.add('cracha-3d'); about.classList.remove('cracha-loading');
+  const show = () => { shown = true; canvas.style.visibility = ''; kick(); };
+  if (reduce) show();
+  else new IntersectionObserver((e, o) => {   // aparece balançando quando a coluna entra na tela
+    if (!e[0].isIntersecting) return;
+    o.disconnect(); pin(); hang(0.9); show();
+  }, { threshold: 0.25 }).observe(slot);
+  new IntersectionObserver((e) => { visible = e[0].isIntersecting; kick(); }).observe(about);
+  const relayout = () => { layout(); if (!running) draw(); kick(); };
+  addEventListener('resize', relayout);
+  addEventListener('load', relayout);
+  setTimeout(relayout, 1800);   // depois da entrada do título
+
+  // ----- arrastar: o canvas não recebe cliques (o texto embaixo continua clicável), então testa o cartão aqui -----
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+  const local = (e) => { const ar = about.getBoundingClientRect(); return { x: e.clientX - ar.left, y: e.clientY - ar.top }; };
+  function onCard(e) {
+    if (!shown) return false;
+    const p = local(e);
+    if (p.x < 0 || p.y < 0 || p.x > cw || p.y > ch) return false;
+    ndc.set(p.x / cw * 2 - 1, 1 - p.y / ch * 2);
+    ray.setFromCamera(ndc, camera);
+    return ray.intersectObject(card, true).length > 0;
+  }
+  let off = null;
+  about.addEventListener('touchstart', (e) => { if (onCard(e.touches[0])) e.preventDefault(); }, { passive: false });   // não rola a página
+  about.addEventListener('pointerdown', (e) => {
+    if (!onCard(e)) return;
+    e.preventDefault();
+    about.setPointerCapture(e.pointerId);
+    const p = local(e);
+    off = { x: p.x - (T.x + BL.x + BR.x) / 3, y: p.y - (T.y + BL.y + BR.y) / 3 };
+    drag = { x: p.x - off.x, y: p.y - off.y };
+    for (const c of cardPts) c.w = 0;
+    about.style.cursor = 'grabbing';
+    kick();
+  });
+  about.addEventListener('pointermove', (e) => {
+    if (drag) { const p = local(e); drag.x = p.x - off.x; drag.y = p.y - off.y; kick(); }
+    else if (e.pointerType === 'mouse') about.style.cursor = onCard(e) ? 'grab' : '';
+  });
+  const release = () => {
+    if (!drag) return;
+    drag = null;
+    for (const c of cardPts) {   // solta com a velocidade do arrasto (limitada)
+      c.w = 0.35;
+      const vx = c.x - c.px, vy = c.y - c.py, s = Math.min(1, 25 / (Math.hypot(vx, vy) || 1));
+      c.px = c.x - vx * s; c.py = c.y - vy * s;
+    }
+    about.style.cursor = '';
+    kick();
+  };
+  about.addEventListener('pointerup', release);
+  about.addEventListener('pointercancel', release);
+
+  // ----- texturas -----
+  function drawFront() {
+    const k = 4, c = document.createElement('canvas'); c.width = W * k; c.height = H * k;
+    const x = c.getContext('2d'); x.scale(k, k);
+    const u = W / 260, pad = 12 * u;   // mesmas medidas do crachá do HTML (260px), em escala
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+    hole(x, u, pad);
+    const iy = pad + 18 * u, iw = W - pad * 2, ih = iw * 4 / 3;
+    x.save(); x.beginPath(); x.roundRect(pad, iy, iw, ih, 10 * u); x.clip();
+    x.drawImage(grayCover(iw * k, ih * k), pad, iy, iw, ih);
+    x.restore();
+    x.textBaseline = 'top';
+    x.fillStyle = '#111'; x.font = `600 ${15 * u}px "Inter Tight", sans-serif`;
+    x.fillText(fig.querySelector('figcaption strong').textContent, pad, iy + ih + 11 * u);
+    x.fillStyle = '#6b6b6b'; x.font = `400 ${11.5 * u}px "Inter Tight", sans-serif`;
+    x.fillText(fig.querySelector('figcaption span').textContent, pad, iy + ih + 31 * u);
+    return c;
+  }
+  function drawBack() {
+    const k = 4, c = document.createElement('canvas'); c.width = W * k; c.height = H * k;
+    const x = c.getContext('2d'); x.scale(k, k);
+    const u = W / 260;
+    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
+    hole(x, u, 12 * u);
+    x.fillStyle = '#111'; x.font = `600 ${64 * u}px "Inter Tight", sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
+    x.fillText('GR', W / 2, H / 2);
+    x.fillStyle = '#f26b1d'; x.beginPath(); x.arc(W / 2 + 52 * u, H / 2 + 18 * u, 6 * u, 0, Math.PI * 2); x.fill();
+    return c;
+  }
+  function hole(x, u, top) {
+    x.fillStyle = '#e4e1dc'; x.beginPath(); x.roundRect((W - 46 * u) / 2, top, 46 * u, 8 * u, 4 * u); x.fill();
+  }
+  function grayCover(w, h) {   // foto P&B cortada em 3:4 (object-fit: cover)
+    const c = document.createElement('canvas'); c.width = Math.round(w); c.height = Math.round(h);
+    const x = c.getContext('2d'), s = Math.max(c.width / photo.naturalWidth, c.height / photo.naturalHeight);
+    const dw = photo.naturalWidth * s, dh = photo.naturalHeight * s;
+    x.drawImage(photo, (c.width - dw) / 2, (c.height - dh) / 2, dw, dh);
+    const d = x.getImageData(0, 0, c.width, c.height), a = d.data;
+    for (let i = 0; i < a.length; i += 4) a[i] = a[i + 1] = a[i + 2] = a[i] * 0.299 + a[i + 1] * 0.587 + a[i + 2] * 0.114;
+    x.putImageData(d, 0, 0);
+    return c;
+  }
+  function drawShadow() {
+    const k = 2, m = 40, c = document.createElement('canvas'); c.width = (W + m * 2) * k; c.height = (H + m * 2) * k;
+    const x = c.getContext('2d'); x.scale(k, k);
+    x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 22 * k; x.shadowOffsetX = 10000 * k;   // só a sombra fica dentro do canvas
+    x.fillStyle = '#000'; x.beginPath(); x.roundRect(m - 10000, m, W, H, W * 0.07); x.fill();
+    return c;
+  }
+  function drawBand() {   // uma repetição do texto; a textura se repete ao longo da fita
+    const text = 'GABRIEL RIBEIRO   •   FULL STACK   •   ', hpx = 64, font = `600 ${hpx * 0.42}px "Inter Tight", sans-serif`;
+    const c = document.createElement('canvas'), x = c.getContext('2d');
+    x.font = font; c.width = Math.ceil(x.measureText(text).width); c.height = hpx;
+    x.fillStyle = '#111'; x.fillRect(0, 0, c.width, hpx);
+    x.font = font; x.fillStyle = 'rgba(255,255,255,.8)'; x.textBaseline = 'middle';
+    x.fillText(text, 0, hpx / 2 + 1);
+    return c;
+  }
+}
