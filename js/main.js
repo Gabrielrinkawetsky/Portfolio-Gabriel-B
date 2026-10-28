@@ -218,18 +218,6 @@ if (animate && ScrollTrigger) {
     io.observe(k);
   } else if (k) k.classList.add('is-in');
 }
-// ---------- Rolagem suave (Lenis, mesmo do site Maria Festinha) ----------
-// roda do mouse/touchpad com inércia; no toque o celular usa a rolagem nativa.
-// Cada passo do Lenis atualiza o ScrollTrigger (zoom da foto, entradas).
-if (window.Lenis && !reduceMotion) {
-  const lenis = new Lenis({ lerp: 0.08, smoothWheel: true, anchors: true, autoRaf: !window.gsap });
-  if (window.gsap) {
-    if (window.ScrollTrigger) lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((t) => lenis.raf(t * 1000));
-    gsap.ticker.lagSmoothing(0);
-  }
-}
-
 // ---------- Crachá pendurado no "g" de "Código" (Sobre mim) ----------
 // Pêndulo simples: o cordão sai do "g" do título e o crachá fica na ponta. Ao aparecer
 // na tela ele cai de cima balançando; dá para arrastar (mouse ou dedo) e ele volta a balançar.
