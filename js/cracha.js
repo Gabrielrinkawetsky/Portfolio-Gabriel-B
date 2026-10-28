@@ -339,7 +339,7 @@ async function start() {
     const x = c.getContext('2d'); x.scale(k, k);
     x.translate(W * 1.5, H / 2); x.rotate(0.6);   // inclina para "/"
     const bw = W * 0.55, g = x.createLinearGradient(-bw, 0, 0, 0);
-    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.7, 'rgba(255,255,255,.28)'); g.addColorStop(1, 'rgba(255,255,255,.55)');
+    g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.7, 'rgba(255,255,255,.18)'); g.addColorStop(1, 'rgba(255,255,255,.38)');
     x.fillStyle = g; x.fillRect(-bw, -H * 2, bw + 1.5, H * 4);
     return c;
   }
