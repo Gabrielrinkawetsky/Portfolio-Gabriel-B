@@ -109,10 +109,15 @@ async function start() {
   const band = new THREE.Mesh(bandGeo, new THREE.MeshBasicMaterial({ map: bandTex, side: THREE.DoubleSide }));
   band.frustumCulled = false;
   scene.add(band);
-  // ponta da fita: dobra arredondada que passa por cima do traço de baixo do "g", como numa argola
+  // gancho de metal: dá a volta no traço de baixo do "g" (por cima e por trás) e desce até uma argola achatada;
+  // a fita passa pela argola e dobra (a "cap" é a dobra, atrás da barra de baixo da argola)
+  const metal = new THREE.MeshStandardMaterial({ color: 0x8e8e8e, metalness: 0.75, roughness: 0.3 });
+  const hook = new THREE.Group(), hookWire = new THREE.Mesh(new THREE.BufferGeometry(), metal), hookRing = new THREE.Mesh(new THREE.BufferGeometry(), metal);
+  hook.add(hookWire, hookRing);
   const cap = new THREE.Mesh(new THREE.BufferGeometry(), new THREE.MeshBasicMaterial({ color: '#111' }));
-  cap.frustumCulled = false;
-  scene.add(cap);
+  for (const o of [hook, cap]) { o.frustumCulled = false; scene.add(o); }
+  let hookLen = 0, hookAng = 0;   // do centro do traço até a barra de baixo da argola / quanto o gancho está virado
+  const HOOK_MAX = 0.75;          // o gancho vira no máximo ~43° para cada lado (encosta na letra)
 
   // ----- física: pontos da fita (0 = preso no "g", N = topo do cartão) + 2 cantos de baixo do cartão -----
   const pts = Array.from({ length: N + 3 }, (_, i) => ({ x: 0, y: 0, z: 0, px: 0, py: 0, pz: 0, w: i === 0 ? 0 : i >= N ? 0.35 : 1, card: i >= N }));
@@ -151,18 +156,37 @@ async function start() {
       return;
     }
   }
+  const P = { x: 0, y: 0 };   // centro do traço do "g", onde o gancho gira
   function pin() {
     const { r } = anchor(), ar = about.getBoundingClientRect();
-    A.x = A.px = r.left + r.width * tail.x - ar.left;
-    A.y = A.py = r.top + r.height * tail.y - ar.top;
+    P.x = r.left + r.width * tail.x - ar.left;
+    P.y = r.top + r.height * tail.y - ar.top;
+    placeA();
+  }
+  function placeA() {   // a fita fica presa na barra de baixo da argola, que gira junto com o gancho
+    A.x = A.px = P.x + Math.sin(hookAng) * hookLen;
+    A.y = A.py = P.y + Math.cos(hookAng) * hookLen;
+  }
+  function buildHook() {   // medidas a partir da grossura do traço do "g" e da largura da fita
+    const t = tail.th * anchor().r.height, rw = Math.max(1.4, t * 0.18), R = t / 2 + rw + 0.6;
+    const sh = Math.max(6, BAND * 0.35), wb = BAND + rw * 2 + 3, hb = Math.max(7, BAND * 0.45), rr = hb * 0.45;
+    const wire = [];   // por trás do traço, por cima, desce pela frente
+    for (let a = 215; a >= 0; a -= 7.5) { const q = THREE.MathUtils.degToRad(a); wire.push(new THREE.Vector3(0, R * Math.sin(q), R * Math.cos(q))); }
+    wire.push(new THREE.Vector3(0, -sh / 2, R), new THREE.Vector3(0, -sh, R));
+    const ring = [], arc = (cx, cy, a0) => { for (let k = 0; k <= 6; k++) { const q = a0 - k * Math.PI / 12; ring.push(new THREE.Vector3(cx + rr * Math.cos(q), cy + rr * Math.sin(q), R)); } };
+    arc(wb / 2 - rr, -sh - rr, Math.PI / 2); arc(wb / 2 - rr, -sh - hb + rr, 0);   // argola: retângulo de cantos redondos
+    arc(-wb / 2 + rr, -sh - hb + rr, -Math.PI / 2); arc(-wb / 2 + rr, -sh - rr, -Math.PI);
+    hookWire.geometry.dispose(); hookWire.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(wire), 64, rw, 8);
+    hookRing.geometry.dispose(); hookRing.geometry = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(ring, true, 'centripetal'), 96, rw, 8, true);
+    hookLen = sh + hb;
+    // dobra da fita: sobe passando a barra e arredonda por cima; embaixo é meio círculo, para a fita sair lisa em qualquer ângulo
+    const hw = BAND / 2, s = new THREE.Shape();
+    s.moveTo(-hw, 0); s.absarc(0, 0, hw, Math.PI, Math.PI * 2, false); s.lineTo(hw, rw);
+    s.absellipse(0, rw, hw, rw * 2.2, 0, Math.PI, false); s.lineTo(-hw, 0);
+    cap.geometry.dispose(); cap.geometry = new THREE.ShapeGeometry(s, 12);
   }
   function layout() {
-    measureTail(); pin();
-    // dobra: sobe meia grossura do traço e arredonda por cima; embaixo é meio círculo, para a fita sair lisa em qualquer ângulo
-    const th = tail.th * anchor().r.height, hw = BAND / 2, s = new THREE.Shape();
-    s.moveTo(-hw, 0); s.absarc(0, 0, hw, Math.PI, Math.PI * 2, false); s.lineTo(hw, th / 2);
-    s.absellipse(0, th / 2, hw, BAND * 0.32, 0, Math.PI, false); s.lineTo(-hw, 0);
-    cap.geometry.dispose(); cap.geometry = new THREE.ShapeGeometry(s, 12);
+    measureTail(); buildHook(); pin();
     const ar = about.getBoundingClientRect(), sr = slot.getBoundingClientRect();
     L = Math.max(120, sr.top - ar.top + 40 - A.y);   // o cartão fica 40px abaixo do topo da coluna
     cw = about.clientWidth; ch = Math.min(about.clientHeight, Math.ceil(A.y + L + H + 120));
@@ -173,6 +197,7 @@ async function start() {
     camera.updateProjectionMatrix();
   }
   function hang(angle) {   // fita esticada num ângulo, cartão reto na ponta, tudo parado
+    hookAng = THREE.MathUtils.clamp(angle, -HOOK_MAX, HOOK_MAX); placeA();
     const sx = Math.sin(angle), sy = Math.cos(angle);
     for (let i = 1; i <= N; i++) Object.assign(pts[i], { x: A.x + sx * L * i / N, y: A.y + sy * L * i / N, z: 0 });
     Object.assign(BL, { x: T.x - W / 2, y: T.y + H, z: 0 });
@@ -186,8 +211,18 @@ async function start() {
     a.x += dx * k * a.w; a.y += dy * k * a.w; a.z += dz * k * a.w;
     b.x -= dx * k * b.w; b.y -= dy * k * b.w; b.z -= dz * k * b.w;
   }
+  function apart(a, b, min) {   // afasta dois pontos que chegaram perto demais
+    const dx = b.x - a.x, dy = b.y - a.y, dz = b.z - a.z, d = Math.hypot(dx, dy, dz) || 1e-6, sw = a.w + b.w;
+    if (d >= min || sw === 0) return;
+    const k = (d - min) / d / sw * 0.5;
+    a.x += dx * k * a.w; a.y += dy * k * a.w; a.z += dz * k * a.w;
+    b.x -= dx * k * b.w; b.y -= dy * k * b.w; b.z -= dz * k * b.w;
+  }
   function step() {
     const damp = Math.exp(-DAMPING * STEP);
+    // o gancho vira devagar para o lado em que a fita puxa, e a argola (ponta da fita) vai junto
+    const pull = Math.atan2(pts[1].x - P.x, pts[1].y - P.y);
+    hookAng += (THREE.MathUtils.clamp(pull, -HOOK_MAX, HOOK_MAX) - hookAng) * 0.08; placeA();
     const cx = (T.x + BL.x + BR.x) / 3, cy = (T.y + BL.y + BR.y) / 3;
     const vcx = (cx - (T.px + BL.px + BR.px) / 3) / STEP;
     let moved = 0;
@@ -207,6 +242,7 @@ async function start() {
     BR.z += pitch - yaw; BL.z += pitch + yaw;
     for (let it = 0; it < ITER; it++) {
       for (let i = 0; i < N; i++) keep(pts[i], pts[i + 1], L / N, true);
+      for (let i = 0; i < N - 1; i++) apart(pts[i], pts[i + 2], L / N * 1.75);   // fita de tecido: curva, mas não dobra em quina
       keep(T, BL, D); keep(T, BR, D); keep(BL, BR, W);
     }
     if (drag) {   // arrastando: o cartão não passa do comprimento da fita
@@ -249,8 +285,8 @@ async function start() {
       bandPos[o] = p.x - side.x; bandPos[o + 1] = p.y - side.y; bandPos[o + 2] = p.z - side.z;
       bandPos[o + 3] = p.x + side.x; bandPos[o + 4] = p.y + side.y; bandPos[o + 5] = p.z + side.z;
     }
-    tan.subVectors(smp[1], smp[0]);
-    cap.position.copy(smp[0]); cap.rotation.z = (Math.atan2(-tan.y, -tan.x) - Math.PI / 2) * 0.3;   // presa no traço: quase não gira
+    hook.position.set(P.x - cw / 2, ch / 2 - P.y, 0); hook.rotation.z = hookAng;
+    cap.position.copy(smp[0]); cap.rotation.z = hookAng;
     bandGeo.attributes.position.needsUpdate = true;
     bandGeo.attributes.uv.needsUpdate = true;
     renderer.render(scene, camera);
