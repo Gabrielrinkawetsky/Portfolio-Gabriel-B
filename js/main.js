@@ -351,28 +351,48 @@ if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fi
 }
 
 // Saída dos Projetos (escuro → claro): a borda de baixo do painel pende como uma gota e se recolhe
-// com a rolagem (curva SVG); a gota laranja acompanha a ponta, se estica e cai sumindo.
+// com a rolagem (curva SVG); a gota laranja acompanha a ponta e se estica, se solta, desce num arco
+// até o fio de "O que eu entrego" e se junta à bolinha da ponta dele (que fica a 60% da altura da tela).
+// st.p vai de 0 (topo da curva no pé da tela) a 1 (no topo da tela); tudo sai dele para a gota
+// nunca descolar da curva, que usa o mesmo valor suavizado.
 if (animate && ScrollTrigger) {
   const curve = document.querySelector('.pj-curve');
   const path = curve && curve.querySelector('path');
   const drop = curve && curve.querySelector('.pj-drop');
+  const line = document.querySelector('.about-areas ol');
   if (path && drop) {
     const st = { p: 0 };
     const ease = gsap.parseEase('power2.inOut');
+    const REL = 0.6, ARR = 0.85;                               // solta com a curva a 40% da tela; chega com ela a 15%
+    let merged = false;
     const render = () => {
-      const p = st.p, H = curve.querySelector('svg').getBoundingClientRect().height;
-      const d = 1 - ease(p);                                   // 1 = gota funda, 0 = borda reta
+      const v = innerHeight, H = curve.querySelector('svg').getBoundingClientRect().height;
+      const pc = Math.min(1, st.p / 0.8);                      // a curva termina de se recolher com o topo a 20% da tela
+      const d = 1 - ease(pc);                                  // 1 = gota funda, 0 = borda reta
       path.setAttribute('d', `M0 0H1440Q720 ${(400 * d).toFixed(1)} 0 0Z`);
-      if (p < 0.5) {                                           // presa na ponta, esticando
-        const s = p / 0.5;
-        gsap.set(drop, { y: d * H, scaleX: 1 - 0.12 * s, scaleY: 1 + 0.35 * s, opacity: Math.min(1, p * 8) });
-      } else {                                                 // solta: cai acelerando e some
-        const q = (p - 0.5) / 0.5;
-        gsap.set(drop, { y: (1 - ease(0.5)) * H + q * q * H * 1.6, scaleX: 1 - 0.3 * q, scaleY: 1 - 0.3 * q, opacity: 1 - q });
+      const cr = curve.getBoundingClientRect(), cx = cr.left + cr.width / 2;
+      const cs = v * (1 - st.p);                               // topo da curva na tela (suavizado)
+      if (st.p < REL || !line) {                               // presa na ponta, esticando
+        const s = Math.min(1, st.p / REL);
+        gsap.set(drop, { x: 0, y: d * H + (cs - cr.top), scaleX: 1 - 0.12 * s, scaleY: 1 + 0.35 * s, opacity: Math.min(1, st.p * 8) * (line || st.p < REL ? 1 : 1 - (st.p - REL) / (1 - REL)) });
+        merged = false;
+        return;
       }
+      const q = Math.min(1, (st.p - REL) / (ARR - REL));
+      const sy = v * (1 - REL) + (1 - ease(Math.min(1, REL / 0.8))) * H;   // onde ela se soltou
+      const lr = line.getBoundingClientRect(), ex = lr.left + 0.5, ey = v * 0.6;   // ponta do fio
+      const x = cx + (ex - cx) * (1 - (1 - q) * (1 - q));      // sai de lado depressa e assenta
+      const y = sy + (ey - sy) * q * q;                        // e cai acelerando
+      const k = 1 - 0.36 * q;                                  // encolhe até o tamanho da bolinha do fio
+      gsap.set(drop, { x: x - cx, y: y - cr.top, scaleX: k * (1 + 0.2 * Math.sin(q * Math.PI)), scaleY: k * (1 - 0.12 * Math.sin(q * Math.PI)),
+        opacity: q < 0.94 ? 1 : (1 - q) / 0.06 });
+      if (q >= 1 && !merged) {                                 // encontrou: a bolinha do fio dá um pulso
+        merged = true;
+        line.classList.remove('is-merge'); void line.offsetWidth; line.classList.add('is-merge');
+      } else if (q < 1) merged = false;
     };
     gsap.to(st, { p: 1, ease: 'none', onUpdate: render,
-      scrollTrigger: { trigger: curve, start: 'top bottom', end: 'top 20%', scrub: 0.8, invalidateOnRefresh: true, onRefresh: render } });
+      scrollTrigger: { trigger: curve, start: 'top bottom', end: 'top top', scrub: 0.8, invalidateOnRefresh: true, onRefresh: render } });
     render();
   }
 }
