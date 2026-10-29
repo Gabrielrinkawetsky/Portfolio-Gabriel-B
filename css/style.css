@@ -847,12 +847,12 @@ html, body { overflow-x: clip; }
   position: relative; isolation: isolate; overflow: clip;
   width: 100vw; margin: clamp(80px, 9vw, 150px) 0 0 calc(50% - 50vw);
   padding: clamp(72px, 8vw, 140px) max(24px, calc((100vw - 1320px) / 2)) 0;
-  border-radius: clamp(18px, 2vw, 32px); color: var(--ink); background: #fffaf5;
+  border-radius: clamp(18px, 2vw, 32px); color: var(--ink); background: #fff;
 }
 .faq-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
   background:
-    radial-gradient(560px circle at var(--mx, 70%) var(--my, 30%), rgba(255, 149, 54, .08), rgba(255, 149, 54, 0) 62%),
-    linear-gradient(180deg, #fffaf5, #fff6ef);
+    radial-gradient(560px circle at var(--mx, 70%) var(--my, 30%), rgba(255, 149, 54, .05), rgba(255, 149, 54, 0) 62%),
+    #fff;
 }
 .faq-bg::after {   /* granulado */
   content: ""; position: absolute; inset: 0; opacity: .06; mix-blend-mode: multiply;
@@ -871,6 +871,7 @@ html, body { overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) { .faq-wave .fw-spark { display: none; } }
 @keyframes fw-spark { to { stroke-dashoffset: 0; } }
 
+.faq .about-kicker .k-num { color: #b8470b; }   /* contraste em cima do laranja */
 .faq-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 6vw, 110px); margin-top: clamp(40px, 5vw, 80px); align-items: start; }
 .faq-side { position: sticky; top: clamp(24px, 12vh, 120px); }
 .faq-title { margin: 0; font-size: clamp(44px, 6vw, 100px); font-weight: 400; line-height: .96; letter-spacing: -.05em; }
