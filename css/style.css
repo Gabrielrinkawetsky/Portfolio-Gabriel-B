@@ -951,3 +951,4 @@ html, body { overflow-x: clip; }
   .about-cta .cta-bonus { font-size: 13px; }
   .cta-bonus i { align-self: flex-start; margin-top: .45em; }
 }
+.faq-a p strong { font-weight: 600; color: var(--ink); }
