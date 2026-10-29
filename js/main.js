@@ -202,6 +202,16 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
     io.observe(k);
   } else if (k) k.classList.add('is-in');
 }
+// ---------- Rolagem suave leve (Lenis) ----------
+// só no mouse/touchpad; inércia curta (lerp alto) para não "prender" entre seções.
+// Celular segue com a rolagem nativa.
+if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  const lenis = new Lenis({ lerp: 0.16, wheelMultiplier: 1, smoothWheel: true, anchors: true, autoRaf: !window.gsap });
+  if (window.gsap) {
+    if (ScrollTrigger) lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add((t) => lenis.raf(t * 1000));
+  }
+}
 
 // "O que eu entrego": o fio laranja desce junto com a rolagem (a ponta fica a 60% da altura da tela),
 // com um leve atraso para ficar macio; o item acende quando o fio passa do começo dele
