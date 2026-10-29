@@ -78,7 +78,7 @@ async function start() {
     new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 2.4, bevelEnabled: false, curveSegments: 8 }).translate(0, 0, -1.2),
       gloss({ color: 0xeceae6 })),
     new THREE.Mesh(face(1.4), gloss({ map: tex(drawFront()) })),
-    new THREE.Mesh(face(-1.4, true), gloss({ map: tex(drawBack()) })),
+    new THREE.Mesh(face(-1.4, true), gloss({ map: tex(drawFront()) })),   // verso igual à frente: foto dos dois lados
   );
   // brilho do vídeo: faixa de luz na diagonal sobre a frente, que desliza quando o cartão gira/balança.
   // O reflexo do mapa de ambiente sozinho fica um véu borrado num cartão desse tamanho, então a faixa é desenhada.
@@ -395,17 +395,6 @@ async function start() {
     x.fillText(fig.querySelector('figcaption strong').textContent, pad, iy + ih + 11 * u);
     x.fillStyle = '#6b6b6b'; x.font = `400 ${11.5 * u}px "Inter Tight", sans-serif`;
     x.fillText(fig.querySelector('figcaption span').textContent, pad, iy + ih + 31 * u);
-    return c;
-  }
-  function drawBack() {
-    const k = 4, c = document.createElement('canvas'); c.width = W * k; c.height = H * k;
-    const x = c.getContext('2d'); x.scale(k, k);
-    const u = W / 260;
-    x.fillStyle = '#fff'; x.fillRect(0, 0, W, H);
-    hole(x, u, 12 * u);
-    x.fillStyle = '#111'; x.font = `600 ${64 * u}px "Inter Tight", sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle';
-    x.fillText('GR', W / 2, H / 2);
-    x.fillStyle = '#f26b1d'; x.beginPath(); x.arc(W / 2 + 52 * u, H / 2 + 18 * u, 6 * u, 0, Math.PI * 2); x.fill();
     return c;
   }
   function hole(x, u, top) {
