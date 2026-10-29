@@ -425,6 +425,13 @@ if (animate && ScrollTrigger) {
       items.forEach((o) => set(o, o === item && open));
     });
   });
+  // a onda do fundo só balança com a seção à vista (e fica parada para quem prefere menos movimento)
+  const wave = faq && faq.querySelector('.faq-wave');
+  if (wave && (reduceMotion || !('IntersectionObserver' in window))) { if (reduceMotion) wave.pauseAnimations(); }
+  else if (wave) {
+    wave.pauseAnimations();
+    new IntersectionObserver(([e]) => (e.isIntersecting ? wave.unpauseAnimations() : wave.pauseAnimations())).observe(faq);
+  }
   if (faq && !reduceMotion && 'IntersectionObserver' in window) {
     const grid = faq.querySelector('.faq-grid');
     grid.classList.add('faq-live');
