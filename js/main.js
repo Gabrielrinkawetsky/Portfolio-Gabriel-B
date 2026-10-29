@@ -194,14 +194,12 @@ if (animate && person) {
 
 document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, tudo aparece
 
-// selo da seção Sobre mim: o fio cresce quando aparece na tela
-{
-  const k = document.querySelector('.about-kicker');
-  if (k && 'IntersectionObserver' in window) {
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { k.classList.add('is-in'); io.disconnect(); } }, { threshold: 0.6 });
-    io.observe(k);
-  } else if (k) k.classList.add('is-in');
-}
+// selos das seções (Sobre mim, Projetos): o fio cresce quando cada um aparece na tela
+document.querySelectorAll('.about-kicker').forEach((k) => {
+  if (!('IntersectionObserver' in window)) { k.classList.add('is-in'); return; }
+  const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { k.classList.add('is-in'); io.disconnect(); } }, { threshold: 0.6 });
+  io.observe(k);
+});
 // ---------- Rolagem suave leve (Lenis) ----------
 // só no mouse/touchpad; inércia curta (lerp alto) para não "prender" entre seções.
 // Celular segue com a rolagem nativa.
