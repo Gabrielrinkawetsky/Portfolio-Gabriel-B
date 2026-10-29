@@ -473,9 +473,9 @@ a { color: inherit; text-decoration: none; }
   .about-facts { margin-top: 18px; padding-top: 16px; gap: 22px; }
   .about-areas { margin-top: 48px; }
   .about-stack { margin-top: 0; }
-  .about-areas li { padding: 14px 0; align-items: center; }
-  .about-areas li p { display: none; }
-  .about-areas h3 { font-size: 20px; }
+  .about-areas li { padding: 16px 0; align-items: baseline; row-gap: 6px; }
+  .about-areas li p { font-size: clamp(13px, 3.5vw, 15px); line-height: 1.5; max-width: none; }   /* descrição pequena embaixo do título */
+  .about-areas h3 { font-size: clamp(19px, 5.4vw, 22px); }
   .about-stack dl > div { padding: 12px 0; gap: 8px; }
   .about-stack dl:not(.about-more dl) i { display: none; }
   .about-stack b, .about-stack i { font-size: 13px; padding: 5px 10px; }
