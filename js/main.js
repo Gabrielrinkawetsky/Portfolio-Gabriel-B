@@ -274,7 +274,7 @@ if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fi
         v.canStart = true;
         v.currentTime = 0;
         if (inView) v.play().catch(() => {});
-      }, 1900);
+      }, 1300);
     };
     slides.forEach((s) => {
       const v = vid(s);
@@ -306,7 +306,7 @@ if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fi
     slides.forEach((s, k) => { s.inert = k > 0; });
 
     if ('IntersectionObserver' in window && !reduceMotion) {
-      new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); if (cur < 0) show(0); } }, { threshold: 0.45 })
+      new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); if (cur < 0) show(0); } }, { threshold: 0.15 })
         .observe(slides[0].querySelector('.laptop'));
       new IntersectionObserver(([e]) => {
         inView = e.isIntersecting;

@@ -49,7 +49,7 @@ a { color: inherit; text-decoration: none; }
    (tracejado 1 2: com o deslocamento em 1.05 não sobra nem a ponta redonda aparecendo). */
 .logo {
   position: absolute; left: 2.9cqw; top: 3.4cqh; z-index: 5;
-  display: flex; align-items: center; gap: clamp(11px, 1.8cqh, 16px); height: clamp(23px, 3.7cqh, 37px);
+  display: flex; align-items: center; gap: clamp(11px, 1.8cqh, 16px); height: clamp(19px, 3cqh, 30px);
 }
 .logo-mark { height: 100%; width: auto; overflow: visible; }
 .lg-s {
@@ -60,7 +60,7 @@ a { color: inherit; text-decoration: none; }
 .logo-sep { width: 1px; height: 82%; background: rgba(255, 255, 255, .4); transform-origin: 50% 50%; }
 .logo-word {
   display: flex; flex-direction: column; color: #fff;
-  font-size: clamp(9px, 1.35cqh, 11.5px); font-weight: 600; letter-spacing: .24em; line-height: 1.4; text-transform: uppercase;
+  font-size: clamp(8px, 1.1cqh, 9.5px); font-weight: 600; letter-spacing: .24em; line-height: 1.4; text-transform: uppercase;
 }
 .logo-word i { font-style: normal; font-weight: 400; opacity: .75; }
 @keyframes lg-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
@@ -218,7 +218,7 @@ a { color: inherit; text-decoration: none; }
       radial-gradient(90cqw 45svh at 0% 0%, #240a03 0%, rgba(60, 18, 5, .8) 35%, rgba(60, 18, 5, 0) 70%),
       linear-gradient(170deg, #7a2a0a 0%, #d8611a 35%, #e9721f 60%, #b9480f 100%);
   }
-  .logo { height: 22px; left: 20px; top: 23px; }
+  .logo { height: 19px; left: 20px; top: 23px; }
   /* cobras do fundo: do tamanho da primeira tela (o fundo cobre a página inteira, que é bem
      alta; sem isso o desenho ficava enorme e só uma fatia fina aparecia). .hero-bg na frente
      para vencer a regra base de .snakes, que vem depois no arquivo */
@@ -269,7 +269,7 @@ a { color: inherit; text-decoration: none; }
 /* tablet em pé: um pouco mais de respiro */
 @media (min-width: 600px) and (max-width: 860px) and (orientation: portrait) {
   .intro { padding: 96px 40px 40px; }
-  .logo { left: 40px; top: 34px; height: 25px; }
+  .logo { left: 40px; top: 34px; height: 21px; }
   .nav { top: 38px; right: 40px; gap: 32px; }
   .nav a { font-size: 15px; }
   .stat { width: 140px; height: 120px; }
@@ -835,3 +835,13 @@ html, body { overflow-x: clip; }
 .laptop { background: none; }
 .laptop::before { background: radial-gradient(closest-side, rgba(0, 0, 0, .7), rgba(0, 0, 0, 0)); }
 .lp-face { box-shadow: inset 0 0 0 1.5px #3b3b3f, inset 0 0 0 3px #111, 0 30px 60px -28px rgba(0, 0, 0, .8); }
+
+/* Projetos mais rápidos: texto e notebook aparecem quase na hora (antes ~2,6 s até a tampa abrir) */
+.pj-slide.is-active { transition: opacity .35s ease .2s, transform .7s cubic-bezier(.2, .7, .2, 1) .2s, visibility 0s .2s; }
+.pj-slide.is-active .laptop { transition: transform .7s cubic-bezier(.2, .7, .2, 1) .2s; }
+.pj-slide.is-active .pj-info > * {
+  --d: calc(.25s + var(--i, 0) * .05s);
+  transition: opacity .45s ease var(--d), transform .6s cubic-bezier(.2, .7, .2, 1) var(--d), translate .25s ease, box-shadow .25s ease;
+}
+.pj-slide.is-active .lp-lid { transition: transform .9s cubic-bezier(.3, .7, .2, 1) .45s; }
+.pj-slide:is(.is-active, .is-leaving) .lp-screen img { animation-delay: 1.2s; }
