@@ -241,6 +241,12 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
     // vídeo do site na tela: começa do início quando a tampa termina de abrir (css: 1.3s + 1.3s) e só toca
     // com a seção à vista; o do notebook que saiu para depois que ele some
     const vid = (s) => s && s.querySelector('.lp-screen video');
+    // dois tamanhos de cada vídeo: 960px (PC e tablet) e 720px (notebook pequeno, no celular); só baixa quando for tocar
+    const load = (v) => {
+      if (!v || v.src) return;
+      v.src = v.dataset.src + (v.parentElement.offsetWidth >= 420 ? '-960.mp4' : '-720.mp4');
+      v.preload = 'auto';
+    };
     const playVideo = (s, old) => {
       const o = vid(old);
       if (o) { o.canStart = false; setTimeout(() => { if (old !== slides[cur]) { o.pause(); o.classList.remove('is-on'); } }, 1300); }
@@ -250,7 +256,7 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
       v.canStart = false;
       v.pause();
       v.classList.remove('is-on');
-      v.preload = 'auto';
+      load(v);
       v.startTimer = setTimeout(() => {
         if (s !== slides[cur]) return;
         v.canStart = true;
@@ -297,7 +303,7 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
         if (v && v.canStart) { if (inView) v.play().catch(() => {}); else v.pause(); }
       }).observe(pj);
       // o vídeo do primeiro projeto começa a baixar quando a seção chega perto
-      new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); const v = vid(slides[0]); if (v) v.preload = 'auto'; } }, { rootMargin: '600px 0px' })
+      new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); const v = vid(slides[0]); load(v); } }, { rootMargin: '600px 0px' })
         .observe(pj);
     } else show(0);
 
