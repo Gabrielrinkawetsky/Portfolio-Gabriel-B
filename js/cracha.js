@@ -353,8 +353,18 @@ async function start() {
   });
   about.addEventListener('pointermove', (e) => {
     if (drag) { const p = local(e); drag.x = p.x - off.x; drag.y = p.y - off.y; kick(); }
-    else if (e.pointerType === 'mouse') about.style.cursor = onCard(e) ? 'grab' : '';
+    else if (e.pointerType === 'mouse') {
+      const on = onCard(e), p = local(e);
+      about.style.cursor = on ? 'grab' : '';
+      if (on && hov) {   // mouse passando por cima: empurrãozinho na direção do movimento, o cartão balança de leve
+        const dx = THREE.MathUtils.clamp(p.x - hov.x, -30, 30), dy = THREE.MathUtils.clamp(p.y - hov.y, -30, 30);
+        for (const c of cardPts) { c.px -= dx * 0.04; c.py -= dy * 0.02; c.pz -= dx * 0.015; }
+        kick();
+      }
+      hov = on ? p : null;
+    }
   });
+  let hov = null;
   const release = () => {
     if (!drag) return;
     drag = null;
