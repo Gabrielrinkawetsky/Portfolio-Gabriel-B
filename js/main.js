@@ -371,3 +371,14 @@ if (animate && ScrollTrigger) {
     render();
   }
 }
+
+// Projetos: o holofote laranja do fundo segue o mouse
+(() => {
+  const pj = document.querySelector('.pj'), bg = pj && pj.querySelector('.pj-bg');
+  if (!bg || matchMedia('(hover: none)').matches) return;
+  pj.addEventListener('pointermove', (e) => {
+    const r = pj.getBoundingClientRect();
+    bg.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+    bg.style.setProperty('--my', (e.clientY - r.top) + 'px');
+  });
+})();

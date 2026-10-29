@@ -1,4 +1,4 @@
-/* Hero B do portfólio do Gabriel: cópia do layout da referência
+﻿/* Hero B do portfólio do Gabriel: cópia do layout da referência
    (Downloads/02dc17bfa7e203ea4202aab6907b6a12.jpg). Medidas tiradas da referência
    como fração da largura/altura do hero, para o desenho se manter em qualquer tela. */
 :root {
@@ -791,3 +791,42 @@ html, body { overflow-x: clip; }
 .hero { z-index: 3; border-radius: 0 0 clamp(18px, 2vw, 32px) clamp(18px, 2vw, 32px); }
 /* entrada dos Projetos: mesmos cantos arredondados, em cima (embaixo a borda pende em curva) */
 .pj { border-radius: clamp(18px, 2vw, 32px) clamp(18px, 2vw, 32px) 0 0; }
+
+/* Projetos, fundo próprio: grafite escuro com grade de pontos, um holofote laranja que segue o mouse
+   (js/main.js põe --mx/--my) e o número do projeto gigante em contorno atrás do texto. */
+.pj { --pj-end: #0e0d0c; background: var(--pj-end); }
+.pj-bg {
+  animation: none; inset: 0;
+  background:
+    radial-gradient(720px circle at var(--mx, 68%) var(--my, 45%), rgba(242, 107, 29, .42), rgba(242, 107, 29, 0) 62%),
+    radial-gradient(60% 50% at 100% 0%, rgba(255, 149, 54, .10), rgba(255, 149, 54, 0) 70%),
+    linear-gradient(180deg, #171513, #0e0d0c);
+  transition: background-position .2s;
+}
+.pj-bg .snakes { display: none; }
+.pj-bg::before {   /* grade de pontos, mais acesa perto do holofote */
+  content: ""; position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, .16) 1px, transparent 1.5px); background-size: 26px 26px;
+  -webkit-mask-image: radial-gradient(640px circle at var(--mx, 68%) var(--my, 45%), #000, rgba(0, 0, 0, .25) 70%);
+          mask-image: radial-gradient(640px circle at var(--mx, 68%) var(--my, 45%), #000, rgba(0, 0, 0, .25) 70%);
+}
+.pj::after { background: linear-gradient(180deg, rgba(14, 13, 12, 0), var(--pj-end)); }
+.pj-curve svg { fill: #0e0d0c; }
+.pj-track { counter-reset: pj; }
+.pj-slide { position: relative; counter-increment: pj; }
+.pj-slide::before {
+  content: "0" counter(pj); position: absolute; left: -.04em; top: 50%; translate: 0 -50%; z-index: -1; pointer-events: none;
+  font-size: clamp(180px, 26vw, 420px); font-weight: 600; letter-spacing: -.06em; line-height: 1;
+  color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .09);
+}
+.pj-tag { color: var(--orange-2); border-color: rgba(242, 107, 29, .55); background: rgba(242, 107, 29, .08); }
+.pj-tag::before { box-shadow: 0 0 10px 1px rgba(242, 107, 29, .9); }
+.pj-desc { color: rgba(255, 255, 255, .72); }
+.pj-tech li { background: rgba(255, 255, 255, .05); border-color: rgba(255, 255, 255, .14); }
+.pj-btn { background: linear-gradient(180deg, var(--orange-2), var(--orange)); color: #fff; box-shadow: 0 14px 30px -14px rgba(242, 107, 29, .8); }
+.pj-dots i.is-on { background: var(--orange); }
+.pj-arrow { border-color: rgba(255, 255, 255, .25); }
+.pj-arrow:hover { background: var(--orange); border-color: var(--orange); color: #fff; }
+.laptop { background: none; }
+.laptop::before { background: radial-gradient(closest-side, rgba(0, 0, 0, .7), rgba(0, 0, 0, 0)); }
+.lp-face { box-shadow: inset 0 0 0 1.5px #3b3b3f, inset 0 0 0 3px #111, 0 30px 60px -28px rgba(0, 0, 0, .8); }
