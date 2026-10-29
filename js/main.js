@@ -260,7 +260,7 @@ if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fi
     };
     const playVideo = (s, old) => {
       const o = vid(old);
-      if (o) { o.canStart = false; setTimeout(() => { if (old !== slides[cur]) { o.pause(); o.classList.remove('is-on'); } }, 1300); }
+      if (o) { o.canStart = false; setTimeout(() => { if (old !== slides[cur]) { o.pause(); o.classList.remove('is-on'); } }, 700); }
       const v = vid(s);
       if (!v || reduceMotion) return;
       clearTimeout(v.startTimer);
@@ -288,12 +288,16 @@ if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fi
         old.classList.replace('is-active', 'is-leaving');
         old.inert = true;
         clearTimeout(old.leaveTimer);
-        old.leaveTimer = setTimeout(() => old.classList.remove('is-leaving'), 1300);   // depois de sumir (css: visibility .. 1.2s)
+        old.leaveTimer = setTimeout(() => old.classList.remove('is-leaving'), 700);   // depois de sumir (css: visibility .. .6s)
       }
-      // o próximo vai para o lado de onde vem sem animar, e só então entra
+      // o próximo vai para o lado de onde vem sem animar (ele e o notebook: senão o notebook
+      // atravessava a tela e entrava pelo lado errado), e só então entra
       clearTimeout(next.leaveTimer);
       next.classList.remove('is-leaving');
-      next.style.transition = 'none'; next.style.setProperty('--x', dir); next.offsetWidth; next.style.transition = '';
+      const lap = next.querySelector('.laptop');
+      next.style.transition = 'none'; if (lap) lap.style.transition = 'none';
+      next.style.setProperty('--x', dir); next.offsetWidth;
+      next.style.transition = ''; if (lap) lap.style.transition = '';
       next.classList.add('is-active');
       next.inert = false;
       cur = i;

@@ -818,6 +818,11 @@ html, body { overflow-x: clip; }
 }
 .pj-slide.is-active .lp-lid { transition: transform .9s cubic-bezier(.3, .7, .2, 1) .45s; }
 .pj-slide:is(.is-active, .is-leaving) .lp-screen img { animation-delay: 1.2s; }
+/* saída no mesmo ritmo da entrada: a tampa fecha enquanto o notebook já desliza para o lado,
+   e tudo some em ~.6 s (antes ~1,2 s: o novo entrava com o anterior ainda no meio) */
+.pj-slide { transition: opacity .3s ease .25s, transform .55s cubic-bezier(.65, 0, .35, 1) .1s, visibility 0s .6s; }
+.pj-slide .laptop { transition: transform .55s cubic-bezier(.65, 0, .35, 1) .1s; }
+.lp-lid { transition: transform .4s cubic-bezier(.55, 0, .45, 1); }
 
 /* Marca GR com degradê laranja que corre pelo traço (o <linearGradient> anima no SVG) e um brilho suave */
 .lg-s { stroke: url(#lg-grad); }
