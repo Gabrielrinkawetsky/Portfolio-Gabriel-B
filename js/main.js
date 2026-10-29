@@ -425,17 +425,6 @@ if (animate && ScrollTrigger) {
       items.forEach((o) => set(o, o === item && open));
     });
   });
-  // holofote do fundo segue o mouse (só com mouse de verdade; atualiza no máximo uma vez por quadro)
-  if (faq && !reduceMotion && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    const bg = faq.querySelector('.faq-bg');
-    let raf = 0, mx = 0, my = 0;
-    faq.addEventListener('pointermove', (e) => {
-      const r = faq.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top;
-      if (!raf) raf = requestAnimationFrame(() => { raf = 0; bg.style.setProperty('--mx', mx + 'px'); bg.style.setProperty('--my', my + 'px'); });
-    }, { passive: true });
-  }
-  // quem prefere menos movimento: a onda do fundo fica parada
-  if (faq && reduceMotion) faq.querySelector('.faq-wave')?.pauseAnimations();
   if (faq && !reduceMotion && 'IntersectionObserver' in window) {
     const grid = faq.querySelector('.faq-grid');
     grid.classList.add('faq-live');

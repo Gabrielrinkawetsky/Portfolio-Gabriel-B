@@ -836,57 +836,53 @@ html, body { overflow-x: clip; }
 .logo:hover .logo-mark { filter: drop-shadow(0 0 10px rgba(255, 170, 90, .9)) drop-shadow(0 2px 14px rgba(120, 35, 5, .45)); }
 
 /* ---------- Perguntas frequentes ----------
-   Faixa clara de ponta a ponta: creme quente com brilhos pêssego e laranja, um orbe que flutua devagar,
-   um holofote que segue o mouse (js/main.js põe --mx/--my) e granulado bem fino. Cada pergunta tem o
-   seu degradê (--g1 → --g2, em 3 tons que se alternam): no número, no cartão aberto, no fio da lateral
-   e no botão. Coluna da esquerda fixa enquanto a lista rola; a resposta abre com a altura animada por
-   grid-template-rows (0fr → 1fr). Fecha com uma faixa de texto gigante em contorno correndo.
+   A coluna da esquerda segue o design aprovado (referência de 404 × 442): todas as medidas estão em --u,
+   que é 1 px da referência e cresce com a tela (o título tem 59 unidades). O fundo é o SVG do index.html,
+   na mesma unidade e preso à margem do conteúdo (42 unidades à direita do início dele); à direita da onda,
+   o branco quente da referência. A coluna fica fixa enquanto a lista rola; a resposta abre com a altura
+   animada por grid-template-rows (0fr → 1fr). Fecha com uma faixa de texto gigante em contorno correndo.
    overflow: clip (e não hidden) para o sticky continuar funcionando. */
 .faq {
   --faq-line: rgba(17, 17, 17, .1);
+  --cl: max(24px, calc((100vw - 1320px) / 2));   /* margem do conteúdo */
+  --t: clamp(46px, 6.1vw, 92px);                 /* tamanho do título */
+  --u: calc(var(--t) / 59);
   position: relative; isolation: isolate; overflow: clip;
   width: 100vw; margin: clamp(80px, 9vw, 150px) 0 0 calc(50% - 50vw);
-  padding: clamp(72px, 8vw, 140px) max(24px, calc((100vw - 1320px) / 2)) 0;
-  border-radius: clamp(18px, 2vw, 32px); color: var(--ink); background: #fff;
+  padding: calc(var(--u) * 57) var(--cl) 0;
+  color: var(--ink); background: #f9f7f5;
 }
-.faq-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
-  background:
-    radial-gradient(560px circle at var(--mx, 70%) var(--my, 30%), rgba(255, 149, 54, .05), rgba(255, 149, 54, 0) 62%),
-    #fff;
-}
-.faq-bg::after {   /* granulado */
-  content: ""; position: absolute; inset: 0; opacity: .06; mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-/* a onda (index.html): esticada na seção inteira */
-.faq-wave { position: absolute; inset: 0; width: 100%; height: 100%; }
+.faq-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: #f9f7f5; }
+.faq-wave { position: absolute; top: 0; left: calc(var(--cl) - 42 * var(--u)); width: calc(420 * var(--u)); height: 100%; overflow: visible; }   /* em telas largas o laranja passa da moldura até a borda esquerda */
 
-.faq .about-kicker { display: flex; align-items: center; gap: 12px; }
+.faq .about-kicker { display: flex; align-items: center; gap: 0; font-size: max(13px, calc(14 * var(--u))); line-height: 1; }
 .faq .about-kicker .k-line, .faq .about-kicker .k-sub { display: none; }
-.faq .about-kicker .k-dash { width: 22px; height: 1.5px; border-radius: 2px; background: var(--orange); }
-.faq .about-kicker .k-num { color: var(--orange); font-weight: 600; }
-.faq-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 6vw, 110px); margin-top: clamp(40px, 5vw, 80px); align-items: start; }
+.faq .about-kicker .k-dash { flex: none; width: 1.07em; height: max(1.5px, .11em); border-radius: 2px; background: #fd5a0a; margin-right: .36em; }
+.faq .about-kicker .k-num { font-size: .86em; font-weight: 400; color: #fd6712; margin-right: .58em; }
+.faq .about-kicker .k-name { font-size: 1.02em; font-weight: 400; letter-spacing: 0; color: #1a1d1c; }
+.faq-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 6vw, 110px); margin-top: calc(var(--u) * 35); align-items: start; }
 .faq-side { position: sticky; top: clamp(24px, 12vh, 120px); }
-.faq-title { margin: 0; font-size: clamp(44px, 6vw, 100px); font-weight: 700; line-height: .98; letter-spacing: -.045em; }
-.faq-title em { font-style: normal; color: var(--orange); }
-.faq-lead { margin: clamp(18px, 1.8vw, 28px) 0 0; max-width: 34ch; font-size: clamp(15px, 1.15vw, 18px); line-height: 1.6; color: var(--muted); }
+.faq-title { margin: 0; font-size: var(--t); font-weight: 700; line-height: .915; letter-spacing: -.02em; color: #0a0a0a; }
+.faq-title em { font-style: normal; color: #fe5700; }
+.faq-lead { margin: calc(var(--u) * 15) 0 0; max-width: 19.4em; font-size: max(12px, calc(11.9 * var(--u))); line-height: 1.325; color: #4f4a42; }
 .faq-wa {
-  display: inline-flex; align-items: center; gap: 10px; margin-top: clamp(22px, 2.2vw, 34px);
-  padding: 16px 24px 16px 20px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 15px; font-weight: 600;
-  box-shadow: 0 16px 34px -14px rgba(17, 17, 17, .55); transition: background .35s, box-shadow .5s;
+  display: inline-flex; align-items: center; height: 3.4em; margin-top: calc(var(--u) * 17);
+  padding: 0 1.1em 0 1.45em; border-radius: 999px; background: #0b0b0a; color: #fff;
+  font-size: max(10.5px, calc(10.2 * var(--u))); font-weight: 500; white-space: nowrap;
+  box-shadow: 0 .5em 1.5em -.05em rgba(225, 85, 5, .85); transition: background .35s, box-shadow .5s;
 }
-.faq-wa .faq-wa-arrow { margin-left: 18px; }
-.faq-wa .faq-wa-ico { width: 20px; height: 20px; stroke-width: 1.6; }
+.faq-wa svg { flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .5s cubic-bezier(.2, .7, .2, 1); }
+.faq-wa .faq-wa-ico { width: 1.9em; height: 1.9em; margin-right: .55em; stroke-width: 1.5; }
 .faq-wa .faq-wa-ico .fill { fill: currentColor; stroke: none; }
-/* selo de segurança embaixo do botão */
-.faq-trust { display: flex; align-items: center; gap: 14px; margin: clamp(40px, 5vw, 72px) 0 0; font-size: 11px; font-weight: 600; letter-spacing: .14em; line-height: 1.5; text-transform: uppercase; color: var(--muted); }
-.faq-trust-dash { width: 22px; height: 1.5px; border-radius: 2px; background: var(--orange); }
-.faq-trust svg { flex: none; width: 26px; height: 26px; fill: rgba(242, 107, 29, .1); stroke: var(--orange); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
-.faq-wa svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform .5s cubic-bezier(.2, .7, .2, 1); }
+.faq-wa .faq-wa-arrow { width: 1.6em; height: 1.6em; margin-left: 1.1em; stroke-width: 1.4; }
 @media (hover: hover) {
-  .faq-wa:hover { background: var(--orange); box-shadow: 0 14px 40px -12px rgba(242, 107, 29, .65); }
+  .faq-wa:hover { background: var(--orange); box-shadow: 0 .55em 1.6em -.1em rgba(240, 85, 0, .7); }
   .faq-wa:hover .faq-wa-arrow { transform: translateX(4px); }
 }
+/* selo de segurança embaixo do botão */
+.faq-trust { display: flex; align-items: center; margin: calc(var(--u) * 44) 0 0; font-size: max(7.5px, calc(7 * var(--u))); font-weight: 600; letter-spacing: .1em; line-height: 1.29; text-transform: uppercase; color: #524a3f; }
+.faq-trust-dash { flex: none; width: 2.14em; height: max(1.5px, .21em); border-radius: 2px; background: #fb6f20; margin-right: .43em; }
+.faq-trust svg { flex: none; width: 3.4em; height: 3.4em; margin-right: 1em; fill: rgba(251, 111, 32, .07); stroke: #fb6f20; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
 /* os 3 degradês que se alternam entre as perguntas */
 .faq-item { --g1: #f26b1d; --g2: #ffb36b; --gs: rgba(242, 107, 29, .35); }
@@ -968,10 +964,10 @@ html, body { overflow-x: clip; }
 }
 
 @media (max-width: 860px) {
-  .faq { margin-top: 56px; padding: 56px 20px 0; border-radius: 22px; }
-  .faq-grid { grid-template-columns: 1fr; gap: 24px; margin-top: 28px; }
+  .faq { --t: min(14.6vw, 64px); --cl: calc(var(--u) * 42); margin-top: 56px; padding: calc(var(--u) * 57) 20px 0; }
+  .faq .about-kicker, .faq-side { padding-left: calc(var(--cl) - 20px); }   /* a coluna usa a margem da referência; a lista, a do site */
+  .faq-grid { grid-template-columns: 1fr; gap: 40px; margin-top: calc(var(--u) * 35); }
   .faq-side { position: static; }
-  .faq-title { font-size: clamp(48px, 15vw, 72px); }
   .faq-q button { grid-template-columns: 30px 1fr 34px; gap: 10px; padding: 18px 0; }
   .faq-ico { width: 34px; height: 34px; }
   .faq-ico::before, .faq-ico::after { width: 12px; margin-left: -6px; }
@@ -979,7 +975,6 @@ html, body { overflow-x: clip; }
   .faq-a p { padding: 0 8px 20px 40px; font-size: 15px; }
   .faq-item::before { inset: -1px -10px; border-radius: 14px; }
   .faq-marquee { margin: 56px -20px 0; }
-  .faq-wave { width: 210%; }   /* no celular a borda da onda vai para a direita, sem cortar os textos */
   .faq-marquee > div { font-size: 64px; }
 }
 
