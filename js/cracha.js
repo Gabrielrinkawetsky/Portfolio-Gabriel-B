@@ -125,26 +125,34 @@ async function start() {
   const D = Math.hypot(W / 2, H);
   let cw = 0, ch = 0, L = 200, drag = null, shown = false;
 
-  function anchor() {   // posição do "g" de "Código" (o título pode estar separado em palavras pelo GSAP)
+  const mob = () => matchMedia('(max-width: 860px)').matches;
+  // posição da letra onde o gancho prende (o título pode estar separado em palavras pelo GSAP):
+  // no PC o "g" de "Código"; no celular o "e" do "que" logo depois, que fica no meio da tela
+  function anchor() {
     const tw = document.createTreeWalker(title, NodeFilter.SHOW_TEXT);
-    let n;
+    let n, seen = false;
     while ((n = tw.nextNode())) {
-      const i = n.data.indexOf('Código');
+      let i = seen ? 0 : n.data.indexOf('Código');
       if (i < 0) continue;
-      const rg = document.createRange(); rg.setStart(n, i + 4); rg.setEnd(n, i + 5);
-      return { r: rg.getBoundingClientRect(), el: n.parentElement };
+      const rg = document.createRange();
+      if (!mob()) { rg.setStart(n, i + 4); rg.setEnd(n, i + 5); return { r: rg.getBoundingClientRect(), el: n.parentElement, ch: 'g' }; }
+      if (!seen) { seen = true; i += 6; }
+      const j = n.data.indexOf('que', i);
+      if (j < 0) continue;
+      rg.setStart(n, j + 2); rg.setEnd(n, j + 3);
+      return { r: rg.getBoundingClientRect(), el: n.parentElement, ch: 'e' };
     }
-    return { r: title.getBoundingClientRect(), el: title };
+    return { r: title.getBoundingClientRect(), el: title, ch: 'g' };
   }
   // centro do traço de baixo do "g" e a grossura dele: desenha a letra num canvas com a mesma fonte e procura
   // a tinta mais baixa. Fica como fração da caixa da letra, que acompanha o tamanho da fonte.
   let tail = { x: 0.5, y: 0.88, th: 0.08 };
   function measureTail() {
-    const { r, el } = anchor(), cs = getComputedStyle(el), k = 3;
+    const { r, el, ch } = anchor(), cs = getComputedStyle(el), k = 3;
     const c = document.createElement('canvas'); c.width = Math.ceil(r.width * k) + 16; c.height = Math.ceil(r.height * k) + 16;
     const x = c.getContext('2d', { willReadFrequently: true });
     x.scale(k, k); x.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
-    x.fillText('g', 0, x.measureText('g').fontBoundingBoxAscent);
+    x.fillText(ch, 0, x.measureText(ch).fontBoundingBoxAscent);
     const a = x.getImageData(0, 0, c.width, c.height).data, ink = (px, py) => a[(py * c.width + px) * 4 + 3] > 128;
     for (let py = c.height - 1; py >= 0; py--) {
       let lo = -1, hi = -1;
@@ -188,7 +196,7 @@ async function start() {
   function layout() {
     measureTail(); buildHook(); pin();
     const ar = about.getBoundingClientRect(), sr = slot.getBoundingClientRect();
-    L = Math.max(120, sr.top - ar.top + 40 - A.y);   // o cartão fica 40px abaixo do topo da coluna
+    L = Math.max(120, sr.top - ar.top + 40 - A.y - (mob() ? 18 : 0));   // o cartão fica 40px abaixo do topo da coluna (no celular a fita é um pouco mais curta)
     cw = about.clientWidth; ch = Math.min(about.clientHeight, Math.ceil(A.y + L + H + 120));
     renderer.setSize(cw, ch);
     camera.aspect = cw / ch;
