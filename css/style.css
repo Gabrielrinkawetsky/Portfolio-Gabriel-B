@@ -843,32 +843,34 @@ html, body { overflow-x: clip; }
   padding: clamp(72px, 8vw, 140px) max(24px, calc((100vw - 1320px) / 2)) 0;
   border-radius: clamp(18px, 2vw, 32px); color: var(--ink); background: #fffaf5;
 }
-.faq-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+.faq-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
   background:
-    radial-gradient(620px circle at var(--mx, 18%) var(--my, 30%), rgba(255, 149, 54, .16), rgba(255, 149, 54, 0) 62%),
-    radial-gradient(55% 55% at 0% 0%, rgba(255, 190, 140, .45), rgba(255, 190, 140, 0) 70%),
-    radial-gradient(45% 50% at 100% 100%, rgba(255, 120, 110, .14), rgba(255, 120, 110, 0) 70%),
-    linear-gradient(180deg, #fffaf5, #fbf0e6);
+    radial-gradient(560px circle at var(--mx, 70%) var(--my, 30%), rgba(255, 149, 54, .10), rgba(255, 149, 54, 0) 62%),
+    #fffdfa;
 }
 .faq-bg::after {   /* granulado */
-  content: ""; position: absolute; inset: 0; opacity: .07; mix-blend-mode: multiply;
+  content: ""; position: absolute; inset: 0; opacity: .06; mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.faq-orb {
-  position: absolute; right: -12vw; top: 18%; width: 46vw; aspect-ratio: 1; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 170, 110, .38), rgba(255, 149, 54, .1) 45%, rgba(255, 149, 54, 0) 70%);
+/* a onda (index.html): esticada na seção inteira; linha e ponto de luz com espessura fixa na tela */
+.faq-wave { position: absolute; inset: 0; width: 100%; height: 100%; }
+.faq-wave .fw-line { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.faq-wave .fw-spark {
+  stroke: #fff; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke-dasharray: .035 .965; stroke-dashoffset: 1; filter: drop-shadow(0 0 6px #ff8a3d) drop-shadow(0 0 2px #f26b1d);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .faq-orb { animation: faq-orb 18s ease-in-out infinite alternate; }
+  .faq-wave .fw-spark { animation: fw-spark 7s cubic-bezier(.45, 0, .3, 1) infinite; }
 }
-@keyframes faq-orb { to { transform: translate(-14vw, 22vh) scale(1.15); } }
+@media (prefers-reduced-motion: reduce) { .faq-wave .fw-spark { display: none; } }
+@keyframes fw-spark { to { stroke-dashoffset: 0; } }
 
 .faq-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 6vw, 110px); margin-top: clamp(40px, 5vw, 80px); align-items: start; }
 .faq-side { position: sticky; top: clamp(24px, 12vh, 120px); }
 .faq-title { margin: 0; font-size: clamp(44px, 6vw, 100px); font-weight: 400; line-height: .96; letter-spacing: -.05em; }
 .faq-title em {
   font-style: normal; color: transparent; -webkit-background-clip: text; background-clip: text;
-  background-image: linear-gradient(100deg, #f26b1d 0%, #ffae6b 35%, #ff6a5c 60%, #f26b1d 100%); background-size: 220% 100%;
+  background-image: linear-gradient(100deg, #d9500a 0%, #f2701f 35%, #e8433f 60%, #d9500a 100%); background-size: 220% 100%;
 }
 @media (prefers-reduced-motion: no-preference) {
   .faq-title em { animation: faq-shine 7s linear infinite; }
@@ -984,8 +986,9 @@ html, body { overflow-x: clip; }
   .faq-a p { padding: 0 8px 20px 40px; font-size: 15px; }
   .faq-item::before { inset: -1px -10px; border-radius: 14px; }
   .faq-item::after { left: -10px; }
-  .faq-orb { width: 90vw; right: -40vw; }
   .faq-marquee { margin: 56px -20px 0; }
+  .faq-wave { width: 210%; }   /* no celular a borda da onda vai para a direita, sem cortar os textos */
+  .faq-wave .fw-line, .faq-wave .fw-spark { display: none; }
   .faq-marquee > div { font-size: 64px; }
 }
 

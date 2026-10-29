@@ -414,6 +414,8 @@ if (animate && ScrollTrigger) {
       if (!raf) raf = requestAnimationFrame(() => { raf = 0; bg.style.setProperty('--mx', mx + 'px'); bg.style.setProperty('--my', my + 'px'); });
     }, { passive: true });
   }
+  // quem prefere menos movimento: a onda do fundo fica parada
+  if (faq && reduceMotion) faq.querySelector('.faq-wave')?.pauseAnimations();
   if (faq && !reduceMotion && 'IntersectionObserver' in window) {
     const grid = faq.querySelector('.faq-grid');
     grid.classList.add('faq-live');
