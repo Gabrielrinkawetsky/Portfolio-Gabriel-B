@@ -858,18 +858,8 @@ html, body { overflow-x: clip; }
   content: ""; position: absolute; inset: 0; opacity: .06; mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-/* a onda (index.html): esticada na seção inteira; linha e ponto de luz com espessura fixa na tela */
+/* a onda (index.html): esticada na seção inteira */
 .faq-wave { position: absolute; inset: 0; width: 100%; height: 100%; }
-.faq-wave .fw-line { stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.faq-wave .fw-spark {
-  stroke: #fff; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke;
-  stroke-dasharray: .035 .965; stroke-dashoffset: 1; filter: drop-shadow(0 0 6px #ffa565) drop-shadow(0 0 2px #ff8a3d);
-}
-@media (prefers-reduced-motion: no-preference) {
-  .faq-wave .fw-spark { animation: fw-spark 7s cubic-bezier(.45, 0, .3, 1) infinite; }
-}
-@media (prefers-reduced-motion: reduce) { .faq-wave .fw-spark { display: none; } }
-@keyframes fw-spark { to { stroke-dashoffset: 0; } }
 
 .faq .about-kicker .k-num { color: #b8470b; }   /* contraste em cima do laranja */
 .faq-grid { display: grid; grid-template-columns: 5fr 7fr; gap: clamp(32px, 6vw, 110px); margin-top: clamp(40px, 5vw, 80px); align-items: start; }
@@ -897,8 +887,8 @@ html, body { overflow-x: clip; }
 
 /* os 3 degradês que se alternam entre as perguntas */
 .faq-item { --g1: #f26b1d; --g2: #ffb36b; --gs: rgba(242, 107, 29, .35); }
-.faq-item:nth-child(3n + 2) { --g1: #ff5f6d; --g2: #ffb36b; --gs: rgba(255, 95, 109, .3); }
-.faq-item:nth-child(3n + 3) { --g1: #ff8a3d; --g2: #ff5e8a; --gs: rgba(255, 94, 138, .28); }
+.faq-item:nth-of-type(3n + 2) { --g1: #ff5f6d; --g2: #ffb36b; --gs: rgba(255, 95, 109, .3); }
+.faq-item:nth-of-type(3n + 3) { --g1: #ff8a3d; --g2: #ff5e8a; --gs: rgba(255, 94, 138, .28); }
 
 .faq-list { position: relative; z-index: 0; border-top: 1px solid var(--faq-line); }
 .faq-item { position: relative; border-bottom: 1px solid var(--faq-line); transition: border-color .5s; }
@@ -909,14 +899,26 @@ html, body { overflow-x: clip; }
   box-shadow: 0 30px 60px -32px var(--gs);
   opacity: 0; transform: scale(.97); transition: opacity .5s, transform .7s cubic-bezier(.2, .7, .2, 1);
 }
-.faq-item::after {   /* fio em degradê na lateral do cartão */
-  content: ""; position: absolute; left: clamp(-22px, -1.5vw, -12px); top: 24px; bottom: 24px; width: 3px; border-radius: 3px;
-  background: linear-gradient(180deg, var(--g2), var(--g1)); transform: scaleY(0); transform-origin: top;
-  transition: transform .7s cubic-bezier(.2, .7, .2, 1);
-}
 .faq-item.is-open { border-color: transparent; }
 .faq-item.is-open::before { opacity: 1; transform: none; }
-.faq-item.is-open::after { transform: none; transition-delay: .1s; }
+/* fio que desce com a rolagem (como o de "O que eu entrego"): trilho cinza, laranja até a ponta (a 60% da
+   altura da tela) e a bolinha na ponta; acende cada pergunta que passa e termina dentro do texto em contorno
+   do fim, que fica laranja quando a bolinha chega (js/main.js põe --p, .is-on e .is-end) */
+.faq-rail {
+  --x: clamp(-22px, -1.5vw, -12px);
+  position: absolute; left: var(--x); top: 0; bottom: calc(-1 * clamp(72px, 8vw, 140px) - clamp(36px, 6vw, 105px)); width: 2px; margin-left: -1px; pointer-events: none;
+  background: linear-gradient(var(--orange-2), var(--orange)) 0 0 / 100% calc(var(--p, 0) * 100%) no-repeat, rgba(17, 17, 17, .1);
+}
+.faq-rail::after {
+  content: ""; position: absolute; left: 50%; top: calc(var(--p, 0) * 100%); width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+  background: var(--orange); box-shadow: 0 0 0 4px rgba(242, 107, 29, .16), 0 0 18px 2px rgba(242, 107, 29, .55);
+  opacity: calc(min(var(--p, 0) * 40, 1));
+}
+.faq-list.is-live .faq-item .faq-q button > *, .faq-list.is-live .faq-item .faq-a { transition: opacity .6s cubic-bezier(.2, .7, .2, 1), color .4s, transform .6s cubic-bezier(.2, .7, .2, 1); }
+.faq-list.is-live .faq-item:not(.is-on) .faq-q button > *, .faq-list.is-live .faq-item:not(.is-on) .faq-a { opacity: .3; }
+.faq-marquee > div { transition: -webkit-text-stroke-color .8s; }
+.faq.is-end .faq-marquee > div { -webkit-text-stroke-color: rgba(242, 107, 29, .55); }
+@media (max-width: 860px) { .faq-rail { --x: -10px; bottom: calc(-56px - 32px); } }
 .faq-q { margin: 0; font: inherit; }
 .faq-q button {
   display: grid; grid-template-columns: 44px 1fr 42px; align-items: center; gap: 16px; width: 100%;
@@ -992,10 +994,8 @@ html, body { overflow-x: clip; }
   .faq-t { font-size: 17px; }
   .faq-a p { padding: 0 8px 20px 40px; font-size: 15px; }
   .faq-item::before { inset: -1px -10px; border-radius: 14px; }
-  .faq-item::after { left: -10px; }
   .faq-marquee { margin: 56px -20px 0; }
   .faq-wave { width: 210%; }   /* no celular a borda da onda vai para a direita, sem cortar os textos */
-  .faq-wave .fw-line, .faq-wave .fw-spark { display: none; }
   .faq-marquee > div { font-size: 64px; }
 }
 
