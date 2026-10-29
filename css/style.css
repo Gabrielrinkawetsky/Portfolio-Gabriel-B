@@ -919,8 +919,6 @@ html, body { overflow-x: clip; }
 }
 .faq-list.is-live .faq-item .faq-q button > *, .faq-list.is-live .faq-item .faq-a { transition: opacity .6s cubic-bezier(.2, .7, .2, 1), color .4s, transform .6s cubic-bezier(.2, .7, .2, 1); }
 .faq-list.is-live .faq-item:not(.is-on):not(.is-open) .faq-q button > :not(.faq-n) { opacity: .3; }   /* o número fica sempre forte */
-.faq-marquee > div { transition: -webkit-text-stroke-color .8s; }
-.faq.is-end .faq-marquee > div { -webkit-text-stroke-color: rgba(242, 107, 29, .55); }
 @media (max-width: 860px) { .faq-rail { --x: -10px; bottom: calc(-56px - 32px); } }
 .faq-q { margin: 0; font: inherit; }
 .faq-q button {
@@ -961,12 +959,16 @@ html, body { overflow-x: clip; }
 .faq-marquee { margin: clamp(72px, 8vw, 140px) calc(-1 * max(24px, calc((100vw - 1320px) / 2))) 0; overflow: hidden; pointer-events: none; user-select: none; }
 .faq-marquee > div { display: flex; width: max-content; align-items: center; gap: .35em; padding-bottom: .08em;
   font-size: clamp(72px, 12vw, 210px); font-weight: 500; letter-spacing: -.04em; line-height: 1; white-space: nowrap;
-  color: transparent; -webkit-text-stroke: 1px rgba(17, 17, 17, .12);
+  color: transparent; -webkit-text-stroke: 1.5px rgba(242, 107, 29, .55);
+  /* onda de luz laranja: uma faixa de brilho que atravessa as letras por dentro do contorno */
+  background: linear-gradient(100deg, rgba(255, 149, 54, 0) 42%, rgba(255, 170, 100, .55) 48%, rgba(242, 107, 29, .8) 50%, rgba(255, 170, 100, .55) 52%, rgba(255, 149, 54, 0) 58%) 0 0 / 100vw 100% repeat-x;   /* uma faixa por largura de tela */
+  -webkit-background-clip: text; background-clip: text;
 }
 .faq-marquee i { flex: none; width: .16em; height: .16em; border-radius: 50%; background: linear-gradient(135deg, #f26b1d, #ffb36b); box-shadow: 0 0 30px 4px rgba(242, 107, 29, .35); }
 @media (prefers-reduced-motion: no-preference) {
-  .faq-marquee > div { animation: faq-marquee 38s linear infinite; }
+  .faq-marquee > div { animation: faq-marquee 38s linear infinite, faq-glow 4.5s cubic-bezier(.45, 0, .3, 1) infinite; }
 }
+@keyframes faq-glow { from { background-position: 0 0; } to { background-position: 100vw 0; } }
 @keyframes faq-marquee { to { transform: translateX(-50%); } }
 
 /* entrada em cascata (só com JS e sem "reduzir movimento") */
