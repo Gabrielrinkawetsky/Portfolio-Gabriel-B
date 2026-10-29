@@ -387,3 +387,33 @@ if (animate && ScrollTrigger) {
     bg.style.setProperty('--my', (e.clientY - r.top) + 'px');
   });
 })();
+
+// Perguntas frequentes: abre uma por vez (a primeira já vem aberta); a resposta fechada fica
+// "inert" para não ser lida nem focada. A lista entra em cascata quando aparece na tela.
+{
+  const faq = document.querySelector('.faq');
+  const items = faq ? [...faq.querySelectorAll('.faq-item')] : [];
+  const set = (item, open) => {
+    item.classList.toggle('is-open', open);
+    item.querySelector('button').setAttribute('aria-expanded', open);
+    item.querySelector('.faq-a').inert = !open;
+  };
+  items.forEach((item, i) => {
+    set(item, i === 0);
+    item.querySelector('button').addEventListener('click', () => {
+      const open = !item.classList.contains('is-open');
+      items.forEach((o) => set(o, o === item && open));
+    });
+  });
+  if (faq && !reduceMotion && 'IntersectionObserver' in window) {
+    const grid = faq.querySelector('.faq-grid');
+    grid.classList.add('faq-live');
+    // depois da entrada tira as classes, para o atraso da cascata não atrasar o abrir/fechar
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      grid.classList.add('is-in'); io.disconnect();
+      setTimeout(() => grid.classList.remove('faq-live', 'is-in'), 2000);
+    }, { threshold: 0.15 });
+    io.observe(grid);
+  }
+}
