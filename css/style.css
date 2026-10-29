@@ -904,22 +904,6 @@ html, body { overflow-x: clip; }
 }
 .faq-item.is-open { border-color: transparent; }
 .faq-item.is-open::before { opacity: 1; transform: none; }
-/* fio que desce com a rolagem (como o de "O que eu entrego"): trilho cinza, laranja até a ponta (a 60% da
-   altura da tela) e a bolinha na ponta; acende cada pergunta que passa e termina dentro do texto em contorno
-   do fim, que fica laranja quando a bolinha chega (js/main.js põe --p, .is-on e .is-end) */
-.faq-rail {
-  --x: clamp(-22px, -1.5vw, -12px);
-  position: absolute; left: var(--x); top: 0; bottom: calc(-1 * clamp(72px, 8vw, 140px) - clamp(36px, 6vw, 105px)); width: 2px; margin-left: -1px; pointer-events: none;
-  background: linear-gradient(var(--orange-2), var(--orange)) 0 0 / 100% calc(var(--p, 0) * 100%) no-repeat, rgba(17, 17, 17, .1);
-}
-.faq-rail::after {
-  content: ""; position: absolute; left: 50%; top: calc(var(--p, 0) * 100%); width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
-  background: var(--orange); box-shadow: 0 0 0 4px rgba(242, 107, 29, .16), 0 0 18px 2px rgba(242, 107, 29, .55);
-  opacity: calc(min(var(--p, 0) * 40, 1));
-}
-.faq-list.is-live .faq-item .faq-q button > *, .faq-list.is-live .faq-item .faq-a { transition: opacity .6s cubic-bezier(.2, .7, .2, 1), color .4s, transform .6s cubic-bezier(.2, .7, .2, 1); }
-.faq-list.is-live .faq-item:not(.is-on):not(.is-open) .faq-q button > :not(.faq-n) { opacity: .3; }   /* o número fica sempre forte */
-@media (max-width: 860px) { .faq-rail { --x: -10px; bottom: calc(-56px - 32px); } }
 .faq-q { margin: 0; font: inherit; }
 .faq-q button {
   display: grid; grid-template-columns: 44px 1fr 42px; align-items: center; gap: 16px; width: 100%;

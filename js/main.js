@@ -434,30 +434,6 @@ if (animate && ScrollTrigger) {
       if (!raf) raf = requestAnimationFrame(() => { raf = 0; bg.style.setProperty('--mx', mx + 'px'); bg.style.setProperty('--my', my + 'px'); });
     }, { passive: true });
   }
-  // fio que desce acompanhando as perguntas (mesma lógica do de "O que eu entrego"): a ponta fica a 60% da
-  // altura da tela; cada pergunta acende quando a ponta passa; no fim a bolinha entra no texto em contorno
-  const rail = faq && faq.querySelector('.faq-rail'), list = faq && faq.querySelector('.faq-list');
-  if (rail && reduceMotion) { rail.style.setProperty('--p', 1); items.forEach((it) => it.classList.add('is-on')); faq.classList.add('is-end'); }
-  else if (rail) {
-    list.classList.add('is-live');
-    let cur = 0, raf = 0;
-    const target = () => { const r = rail.getBoundingClientRect(); return Math.min(1, Math.max(0, (innerHeight * 0.6 - r.top) / r.height)); };
-    const tick = () => {
-      const t = target();
-      cur += (t - cur) * 0.12;
-      if (Math.abs(t - cur) < 0.0005) cur = t;
-      rail.style.setProperty('--p', cur.toFixed(4));
-      const tip = cur * rail.offsetHeight;
-      for (const it of items) it.classList.toggle('is-on', tip >= it.offsetTop + Math.min(it.offsetHeight, 90) * 0.3);
-      faq.classList.toggle('is-end', cur > 0.985);
-      raf = cur === t ? 0 : requestAnimationFrame(tick);
-    };
-    const go = () => { if (!raf) raf = requestAnimationFrame(tick); };
-    addEventListener('scroll', go, { passive: true });
-    addEventListener('resize', go);
-    list.addEventListener('transitionend', go);   // abrir/fechar muda a altura da lista
-    go();
-  }
   // quem prefere menos movimento: a onda do fundo fica parada
   if (faq && reduceMotion) faq.querySelector('.faq-wave')?.pauseAnimations();
   if (faq && !reduceMotion && 'IntersectionObserver' in window) {
