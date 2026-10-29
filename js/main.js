@@ -344,3 +344,30 @@ if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fi
     }
   }
 }
+
+// Saída dos Projetos (escuro → claro): a borda de baixo do painel pende como uma gota e se recolhe
+// com a rolagem (curva SVG); a gota laranja acompanha a ponta, se estica e cai sumindo.
+if (animate && ScrollTrigger) {
+  const curve = document.querySelector('.pj-curve');
+  const path = curve && curve.querySelector('path');
+  const drop = curve && curve.querySelector('.pj-drop');
+  if (path && drop) {
+    const st = { p: 0 };
+    const ease = gsap.parseEase('power2.inOut');
+    const render = () => {
+      const p = st.p, H = curve.querySelector('svg').getBoundingClientRect().height;
+      const d = 1 - ease(p);                                   // 1 = gota funda, 0 = borda reta
+      path.setAttribute('d', `M0 0H1440Q720 ${(400 * d).toFixed(1)} 0 0Z`);
+      if (p < 0.5) {                                           // presa na ponta, esticando
+        const s = p / 0.5;
+        gsap.set(drop, { y: d * H, scaleX: 1 - 0.12 * s, scaleY: 1 + 0.35 * s, opacity: Math.min(1, p * 8) });
+      } else {                                                 // solta: cai acelerando e some
+        const q = (p - 0.5) / 0.5;
+        gsap.set(drop, { y: (1 - ease(0.5)) * H + q * q * H * 1.6, scaleX: 1 - 0.3 * q, scaleY: 1 - 0.3 * q, opacity: 1 - q });
+      }
+    };
+    gsap.to(st, { p: 1, ease: 'none', onUpdate: render,
+      scrollTrigger: { trigger: curve, start: 'top bottom', end: 'top 20%', scrub: 0.8, invalidateOnRefresh: true, onRefresh: render } });
+    render();
+  }
+}
