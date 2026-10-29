@@ -104,8 +104,9 @@ if (animate) {
   // clearProps devolve o controle ao CSS no fim (efeitos de hover usam transform)
   const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
   tl.from('.snakes', { autoAlpha: 0, duration: 2.6, ease: 'power2.out', clearProps: 'opacity,visibility' }, 0)
-    // marca: o G e o R se desenham (o cursor já pisca), depois o fio e o nome aparecem
-    .from($$('.logo .lg-s'), { strokeDashoffset: 1.05, duration: 1.1, stagger: 0.16, ease: 'power3.inOut', clearProps: 'strokeDashoffset' }, 0.1)
+    // marca: o G e o R se desenham igual ao hover (o cursor já pisca), depois o fio e o nome aparecem.
+    // autoRound: false — sem ele o GSAP arredonda o px e o traço pulava de 1 para 0, sem desenhar
+    .from($$('.logo .lg-s'), { strokeDashoffset: 1.05, autoRound: false, duration: 0.8, stagger: 0.1, ease: 'power2.inOut', clearProps: 'strokeDashoffset' }, 0.3)
     .from($('.logo-sep'), { scaleY: 0, duration: 0.8, clearProps: 'transform' }, 0.55)
     .from($('.logo-word'), { clipPath: 'inset(0% 100% 0% 0%)', duration: 1.1, ease: 'expo.inOut', clearProps: 'clipPath' }, 0.55);
   // painel claro desenrola de cima para baixo (no celular ele fica mais abaixo: entra na rolagem)
