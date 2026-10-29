@@ -352,6 +352,16 @@ a { color: inherit; text-decoration: none; }
 }
 .about-in { width: min(100% - 48px, 1320px); margin: 0 auto; }
 .about em { font-style: normal; color: var(--orange); }
+/* "emociona": faixa de luz que passa pela palavra em loop (texto recortado no gradiente).
+   Vai na .word (o GSAP separa o título em palavras) ou no próprio <em> quando não separa. */
+.about-title em .word, .about-title em:not(:has(.word)) {
+  background: linear-gradient(105deg, var(--orange) 0%, var(--orange) 36%, #ff9536 44%, #ffc98a 50%, #ff9536 56%, var(--orange) 64%, var(--orange) 100%);
+  background-size: 260% 100%; background-position: 100% 0;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: about-shine 4.2s cubic-bezier(.5, 0, .3, 1) 1.2s infinite;
+}
+@keyframes about-shine { 0% { background-position: 100% 0; } 55%, 100% { background-position: 0 0; } }
+@media (prefers-reduced-motion: reduce) { .about-title em .word, .about-title em:not(:has(.word)) { animation: none; } }
 
 .about-kicker {
   margin: 0;   /* bloco comum: em flex cada trecho de texto virava uma coluna no celular */
