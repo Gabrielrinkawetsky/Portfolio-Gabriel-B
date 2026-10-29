@@ -237,7 +237,31 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
   const slides = pj ? [...pj.querySelectorAll('.pj-slide')] : [];
   if (slides.length) {
     const count = pj.querySelector('.pj-count b'), dots = [...pj.querySelectorAll('.pj-dots i')];
-    let cur = -1;
+    let cur = -1, inView = false;
+    // vídeo do site na tela: começa do início quando a tampa termina de abrir (css: 1.3s + 1.3s) e só toca
+    // com a seção à vista; o do notebook que saiu para depois que ele some
+    const vid = (s) => s && s.querySelector('.lp-screen video');
+    const playVideo = (s, old) => {
+      const o = vid(old);
+      if (o) { o.canStart = false; setTimeout(() => { if (old !== slides[cur]) { o.pause(); o.classList.remove('is-on'); } }, 1300); }
+      const v = vid(s);
+      if (!v || reduceMotion) return;
+      clearTimeout(v.startTimer);
+      v.canStart = false;
+      v.pause();
+      v.classList.remove('is-on');
+      v.preload = 'auto';
+      v.startTimer = setTimeout(() => {
+        if (s !== slides[cur]) return;
+        v.canStart = true;
+        v.currentTime = 0;
+        if (inView) v.play().catch(() => {});
+      }, 1900);
+    };
+    slides.forEach((s) => {
+      const v = vid(s);
+      if (v) v.addEventListener('playing', () => v.classList.add('is-on'));
+    });
     const show = (i, dir = 1) => {
       i = (i + slides.length) % slides.length;
       if (i === cur) return;
@@ -256,6 +280,7 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
       next.classList.add('is-active');
       next.inert = false;
       cur = i;
+      playVideo(next, old);
       count.textContent = String(i + 1).padStart(2, '0');
       dots.forEach((d, k) => d.classList.toggle('is-on', k === i));
     };
@@ -265,7 +290,15 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
     if ('IntersectionObserver' in window && !reduceMotion) {
       new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); if (cur < 0) show(0); } }, { threshold: 0.45 })
         .observe(slides[0].querySelector('.laptop'));
-      new IntersectionObserver(([e]) => pj.classList.toggle('is-paused', !e.isIntersecting)).observe(pj);
+      new IntersectionObserver(([e]) => {
+        inView = e.isIntersecting;
+        pj.classList.toggle('is-paused', !inView);
+        const v = vid(slides[cur]);
+        if (v && v.canStart) { if (inView) v.play().catch(() => {}); else v.pause(); }
+      }).observe(pj);
+      // o vídeo do primeiro projeto começa a baixar quando a seção chega perto
+      new IntersectionObserver(([e], o) => { if (e.isIntersecting) { o.disconnect(); const v = vid(slides[0]); if (v) v.preload = 'auto'; } }, { rootMargin: '600px 0px' })
+        .observe(pj);
     } else show(0);
 
     pj.querySelectorAll('.pj-arrow').forEach((b) => b.addEventListener('click', () => step(Number(b.dataset.dir))));
