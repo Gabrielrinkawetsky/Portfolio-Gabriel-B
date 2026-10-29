@@ -206,7 +206,7 @@ document.documentElement.classList.remove('gsap-loading');   // mesmo sem GSAP, 
 // só no mouse/touchpad; inércia curta (lerp alto) para não "prender" entre seções.
 // Celular segue com a rolagem nativa.
 if (window.Lenis && !reduceMotion && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-  const lenis = new Lenis({ lerp: 0.16, wheelMultiplier: 1, smoothWheel: true, anchors: true, autoRaf: !window.gsap });
+  const lenis = new Lenis({ lerp: 0.11, wheelMultiplier: 1, smoothWheel: true, anchors: true, autoRaf: !window.gsap });
   if (window.gsap) {
     if (ScrollTrigger) lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add((t) => lenis.raf(t * 1000));
