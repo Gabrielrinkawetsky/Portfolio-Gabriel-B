@@ -219,12 +219,6 @@ a { color: inherit; text-decoration: none; }
       linear-gradient(170deg, #7a2a0a 0%, #d8611a 35%, #e9721f 60%, #b9480f 100%);
   }
   .logo { height: 19px; left: 20px; top: 23px; }
-  /* cobras do fundo: do tamanho da primeira tela (o fundo cobre a página inteira, que é bem
-     alta; sem isso o desenho ficava enorme e só uma fatia fina aparecia). .hero-bg na frente
-     para vencer a regra base de .snakes, que vem depois no arquivo */
-  .hero-bg .snakes { inset: auto; top: 6%; left: 50%; width: calc(var(--stage) * 1.6); height: var(--stage); transform: translateX(-50%); }
-  .hero-bg .snakes { filter: blur(13px); }
-  .hero-bg .snake-shadow { stroke: rgba(95, 26, 4, .38); }
 
   /* menu: no alto, à direita do logo (no PC ele fica no alto do painel) */
   /* z-index (funciona em item de grid sem position): a foto sobe por trás do painel na entrada */
@@ -319,7 +313,7 @@ a { color: inherit; text-decoration: none; }
 /* enquanto o GSAP não prepara a entrada, o conteúdo da hero fica escondido (sem piscar no
    lugar final). A classe é posta no <head> e tirada pelo js/main.js, inclusive se o GSAP não
    carregar. */
-.gsap-loading :is(.logo, .intro, .panel, .socials, .person, .snakes) { opacity: 0; }
+.gsap-loading :is(.logo, .intro, .panel, .socials, .person) { opacity: 0; }
 
 /* máscaras da entrada do texto (js/main.js quebra o texto em letras/palavras): o texto sobe
    de baixo da máscara. O padding com margem negativa dá espaço às letras que descem (g, p, ç)
@@ -330,27 +324,6 @@ a { color: inherit; text-decoration: none; }
 .word-mask { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .16em; margin-bottom: -.16em; }
 .word { display: inline-block; }
 .nowrap { white-space: nowrap; }
-
-/* cobras: faixas de sombra em forma de S, cada uma com um brilho claro ao lado (como o arco
-   do fundo da referência). A camada inteira é desfocada junto (um único blur), o que deixa as
-   bordas macias. O tracejado (um trecho visível, o resto vazio) anda pelo caminho e parece uma
-   cobra correndo; o grupo ainda ondula de leve para cima e para baixo. */
-.snakes { position: absolute; inset: 0; width: 100%; height: 100%; filter: blur(20px); will-change: transform; }
-.snake use {
-  fill: none; stroke-linecap: round;
-  stroke-dasharray: var(--len, 300) calc(1000 - var(--len, 300));
-  animation: snake-run var(--dur, 18s) linear infinite;
-  animation-delay: var(--delay, 0s);
-}
-.snake-shadow { stroke: rgba(95, 26, 4, .30); stroke-width: 130; }
-.snake-light  { stroke: rgba(255, 175, 95, .16); stroke-width: 70; transform: translate(-22px, -80px); }
-.snake { animation: snake-sway var(--sway, 9s) ease-in-out infinite alternate; }
-.s1 { --len: 520; --dur: 20s; --delay: -4s;  --sway: 8s; }
-.s2 { --len: 480; --dur: 25s; --delay: -15s; --sway: 11s; }
-.s3 { --len: 560; --dur: 22s; --delay: -9s;  --sway: 9s; }
-.s4 { --len: 520; --dur: 28s; --delay: -20s; --sway: 12s; }
-@keyframes snake-run { from { stroke-dashoffset: 1000; } to { stroke-dashoffset: 0; } }
-@keyframes snake-sway { from { transform: translateY(-18px); } to { transform: translateY(22px); } }
 
 @keyframes hero-bg-drift {
   0%   { transform: scale(1)    rotate(0deg)    translate(0, 0); }
@@ -365,7 +338,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-  .hero-bg, .hero-bg::after, .snake, .snake use { animation: none; }
+  .hero-bg, .hero-bg::after { animation: none; }
 }
 
 /* ============ SOBRE MIM ============
