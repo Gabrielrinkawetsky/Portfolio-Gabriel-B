@@ -789,3 +789,5 @@ html, body { overflow-x: clip; }
 
 /* quebra hero -> Sobre mim: o hero termina com cantos arredondados embaixo, por cima do Sobre mim */
 .hero { z-index: 3; border-radius: 0 0 clamp(18px, 2vw, 32px) clamp(18px, 2vw, 32px); }
+/* entrada dos Projetos: mesmos cantos arredondados, em cima (embaixo a borda pende em curva) */
+.pj { border-radius: clamp(18px, 2vw, 32px) clamp(18px, 2vw, 32px) 0 0; }
