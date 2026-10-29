@@ -818,3 +818,8 @@ html, body { overflow-x: clip; }
 }
 .pj-slide.is-active .lp-lid { transition: transform .9s cubic-bezier(.3, .7, .2, 1) .45s; }
 .pj-slide:is(.is-active, .is-leaving) .lp-screen img { animation-delay: 1.2s; }
+
+/* Marca GR com degradê laranja que corre pelo traço (o <linearGradient> anima no SVG) e um brilho suave */
+.lg-s { stroke: url(#lg-grad); }
+.logo-mark { filter: drop-shadow(0 0 6px rgba(255, 149, 54, .55)) drop-shadow(0 2px 10px rgba(120, 35, 5, .35)); transition: filter .4s ease; }
+.logo:hover .logo-mark { filter: drop-shadow(0 0 10px rgba(255, 170, 90, .9)) drop-shadow(0 2px 14px rgba(120, 35, 5, .45)); }
