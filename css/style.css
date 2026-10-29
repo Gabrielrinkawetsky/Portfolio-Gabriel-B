@@ -1,4 +1,4 @@
-﻿/* Hero B do portfólio do Gabriel: cópia do layout da referência
+/* Hero B do portfólio do Gabriel: cópia do layout da referência
    (Downloads/02dc17bfa7e203ea4202aab6907b6a12.jpg). Medidas tiradas da referência
    como fração da largura/altura do hero, para o desenho se manter em qualquer tela. */
 :root {
@@ -49,7 +49,7 @@ a { color: inherit; text-decoration: none; }
    (tracejado 1 2: com o deslocamento em 1.05 não sobra nem a ponta redonda aparecendo). */
 .logo {
   position: absolute; left: 2.9cqw; top: 3.4cqh; z-index: 5;
-  display: flex; align-items: center; gap: clamp(11px, 1.8cqh, 16px); height: clamp(28px, 4.6cqh, 46px);
+  display: flex; align-items: center; gap: clamp(11px, 1.8cqh, 16px); height: clamp(23px, 3.7cqh, 37px);
 }
 .logo-mark { height: 100%; width: auto; overflow: visible; }
 .lg-s {
@@ -60,7 +60,7 @@ a { color: inherit; text-decoration: none; }
 .logo-sep { width: 1px; height: 82%; background: rgba(255, 255, 255, .4); transform-origin: 50% 50%; }
 .logo-word {
   display: flex; flex-direction: column; color: #fff;
-  font-size: clamp(10.5px, 1.6cqh, 13.5px); font-weight: 600; letter-spacing: .24em; line-height: 1.4; text-transform: uppercase;
+  font-size: clamp(9px, 1.35cqh, 11.5px); font-weight: 600; letter-spacing: .24em; line-height: 1.4; text-transform: uppercase;
 }
 .logo-word i { font-style: normal; font-weight: 400; opacity: .75; }
 @keyframes lg-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
@@ -218,7 +218,7 @@ a { color: inherit; text-decoration: none; }
       radial-gradient(90cqw 45svh at 0% 0%, #240a03 0%, rgba(60, 18, 5, .8) 35%, rgba(60, 18, 5, 0) 70%),
       linear-gradient(170deg, #7a2a0a 0%, #d8611a 35%, #e9721f 60%, #b9480f 100%);
   }
-  .logo { height: 26px; left: 20px; top: 23px; }
+  .logo { height: 22px; left: 20px; top: 23px; }
   /* cobras do fundo: do tamanho da primeira tela (o fundo cobre a página inteira, que é bem
      alta; sem isso o desenho ficava enorme e só uma fatia fina aparecia). .hero-bg na frente
      para vencer a regra base de .snakes, que vem depois no arquivo */
@@ -269,7 +269,7 @@ a { color: inherit; text-decoration: none; }
 /* tablet em pé: um pouco mais de respiro */
 @media (min-width: 600px) and (max-width: 860px) and (orientation: portrait) {
   .intro { padding: 96px 40px 40px; }
-  .logo { left: 40px; top: 34px; height: 30px; }
+  .logo { left: 40px; top: 34px; height: 25px; }
   .nav { top: 38px; right: 40px; gap: 32px; }
   .nav a { font-size: 15px; }
   .stat { width: 140px; height: 120px; }
