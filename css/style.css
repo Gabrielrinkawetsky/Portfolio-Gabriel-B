@@ -44,8 +44,35 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ---------- Logo ---------- */
-.logo { position: absolute; left: 2.9cqw; top: 3.4cqh; width: 4.3cqh; height: 4.3cqh; z-index: 5; }
-.logo svg { width: 100%; height: 100%; fill: #fff; fill-rule: evenodd; }
+/* GR ligado (traço branco) + cursor laranja piscando, fio fino e o nome em duas linhas.
+   Os traços têm pathLength=1: a entrada (js/main.js) e o hover redesenham pelo stroke-dashoffset
+   (tracejado 1 2: com o deslocamento em 1.05 não sobra nem a ponta redonda aparecendo). */
+.logo {
+  position: absolute; left: 2.9cqw; top: 3.4cqh; z-index: 5;
+  display: flex; align-items: center; gap: clamp(11px, 1.8cqh, 16px); height: clamp(28px, 4.6cqh, 46px);
+}
+.logo-mark { height: 100%; width: auto; overflow: visible; }
+.lg-s {
+  fill: none; stroke: #fff; stroke-width: 4; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1 2; stroke-dashoffset: 0;
+}
+.lg-cursor { fill: var(--orange-2); filter: drop-shadow(0 0 3px rgba(255, 149, 54, .9)); animation: lg-blink 1.1s steps(1) infinite; }
+.logo-sep { width: 1px; height: 82%; background: rgba(255, 255, 255, .4); transform-origin: 50% 50%; }
+.logo-word {
+  display: flex; flex-direction: column; color: #fff;
+  font-size: clamp(10.5px, 1.6cqh, 13.5px); font-weight: 600; letter-spacing: .24em; line-height: 1.4; text-transform: uppercase;
+}
+.logo-word i { font-style: normal; font-weight: 400; opacity: .75; }
+@keyframes lg-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@keyframes lg-draw { from { stroke-dashoffset: 1.05; } to { stroke-dashoffset: 0; } }
+@media (hover: hover) {
+  .logo:hover .lg-s { animation: lg-draw .8s cubic-bezier(.65, 0, .35, 1) both; }
+  .logo:hover .lg-s:nth-child(2) { animation-delay: .1s; }
+  .logo:hover .lg-s:nth-child(3) { animation-delay: .2s; }
+}
+.logo:focus-visible { outline: 2px solid #fff; outline-offset: 6px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .lg-cursor, .logo:hover .lg-s { animation: none; } }
+@media (max-width: 599px) { .logo-sep, .logo-word { display: none; } }   /* celular: só o GR (o menu fica ao lado) */
 
 /* ---------- Textos da esquerda ---------- */
 .intro { position: absolute; left: 5.2cqw; top: 18cqh; z-index: 4; color: #fff; }
@@ -191,7 +218,7 @@ a { color: inherit; text-decoration: none; }
       radial-gradient(90cqw 45svh at 0% 0%, #240a03 0%, rgba(60, 18, 5, .8) 35%, rgba(60, 18, 5, 0) 70%),
       linear-gradient(170deg, #7a2a0a 0%, #d8611a 35%, #e9721f 60%, #b9480f 100%);
   }
-  .logo { width: 32px; height: 32px; left: 20px; top: 20px; }
+  .logo { height: 26px; left: 20px; top: 23px; }
   /* cobras do fundo: do tamanho da primeira tela (o fundo cobre a página inteira, que é bem
      alta; sem isso o desenho ficava enorme e só uma fatia fina aparecia). .hero-bg na frente
      para vencer a regra base de .snakes, que vem depois no arquivo */
@@ -242,7 +269,7 @@ a { color: inherit; text-decoration: none; }
 /* tablet em pé: um pouco mais de respiro */
 @media (min-width: 600px) and (max-width: 860px) and (orientation: portrait) {
   .intro { padding: 96px 40px 40px; }
-  .logo { left: 40px; top: 30px; width: 36px; height: 36px; }
+  .logo { left: 40px; top: 34px; height: 30px; }
   .nav { top: 38px; right: 40px; gap: 32px; }
   .nav a { font-size: 15px; }
   .stat { width: 140px; height: 120px; }
